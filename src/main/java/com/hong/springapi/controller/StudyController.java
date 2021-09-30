@@ -4,37 +4,37 @@ import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.StudyRepository;
+import com.hong.springapi.service.StudyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
 public class StudyController {
 
-    private final StudyRepository studyRepository;
+    private final StudyService studyService;
 
     // create
+    @Transactional
     @PostMapping("/study")
-    public Study createStudy(@RequestBody StudyRequestDto requestDto){
-        return studyRepository.save(Study.builder()
-                // 장소가 공백이면 안됨
-                .title(requestDto.getTitle())
-                .user_id(requestDto.getUser_id())
-                // maxman 2이상 이어야함
-                .maxman(requestDto.getMaxman())
-                .nowman(1)
-                // 설명이 공백이면 안됨
-                .description(requestDto.getDescription())
-                // 장소가 공백이면 안됨
-                .place(requestDto.getPlace())
-                .warn_cnt(0)
-                .build()
-        );
-    }
+    public Optional<Study> createStudy(@RequestBody StudyRequestDto requestDto){
+       Study study = new Study();
+       study.setTitle(requestDto.getTitle());
+       study.setUser_id(requestDto.getUser_id());
+       study.setPlace(requestDto.getPlace());
+       study.setMaxman(requestDto.getMaxman());
+       study.setWarn_cnt(0);
+       study.setNowman(1);
+       study.setDescription(requestDto.getDescription());
 
+       return studyService.join(study);
+    }
+/*
     // read all
     @GetMapping("/study")
     public List<Study> getStudys(){
@@ -62,4 +62,6 @@ public class StudyController {
         studyRepository.deleteById(id);
         return id;
     }
+*/
 }
+
