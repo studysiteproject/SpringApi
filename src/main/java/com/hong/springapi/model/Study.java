@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -22,13 +23,14 @@ public class Study extends Timestamped {
     @Column
     private String title;
 
-    @Column
-    private Long user_id;
+    @Column (name = "user_id")
+    private Long userId;
 
     @Column
     private  int maxman;
 
     @Column
+    @ColumnDefault("")
     private int nowman;
 
     @Column
@@ -37,8 +39,8 @@ public class Study extends Timestamped {
     @Column
     private String place;
 
-    @Column
-    private int warn_cnt;
+    @Column(name = "warn_cnt")
+    private int warnCnt;
 
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();
