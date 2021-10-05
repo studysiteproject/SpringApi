@@ -30,8 +30,8 @@ public class Study extends Timestamped {
     private  int maxman;
 
     @Column
-    @ColumnDefault("")
-    private int nowman;
+    @Builder.Default
+    private int nowman = 1;
 
     @Column
     private String description;
@@ -39,8 +39,9 @@ public class Study extends Timestamped {
     @Column
     private String place;
 
+    @Builder.Default
     @Column(name = "warn_cnt")
-    private int warnCnt;
+    private int warnCnt = 0;
 
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();

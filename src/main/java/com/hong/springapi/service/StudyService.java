@@ -1,19 +1,26 @@
 package com.hong.springapi.service;
 
+import com.hong.springapi.dto.ApplicationlistDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
+import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
+import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
 public class StudyService {
 
     private final StudyRepository studyRepository;
+    private final ApplicationlistRepository applicationlistRepository;
 
     @Transactional
     public Long update(Long id, StudyRequestDto requestDto) {
@@ -35,5 +42,18 @@ public class StudyService {
                 .place(requestDto.getPlace())
                 .build()
         );
+    }
+
+    @Transactional
+    public ResponseEntity<String> updateApplicationlist(Long studyId, List<ApplicationlistDto> requestDtolist) {
+        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
+
+        for (Applicationlist application : applicationlist){
+            for (ApplicationlistDto requestDto : requestDtolist){
+                if (requestDto.getUser_id().equals(application.getUserId()))
+                    application.update(requestDto.getPermission());
+            }
+        }
+        return new ResponseEntity<> ("success", HttpStatus.OK);
     }
 }
