@@ -26,7 +26,7 @@ public class StudyService {
         return studyRepository.save(Study.builder()
                 // 장소가 공백이면 안됨
                 .title(requestDto.getTitle())
-                .user_id(requestDto.getUser_id())
+                .userId(requestDto.getUser_id())
                 // maxman 2이상 이어야함
                 .maxman(requestDto.getMaxman())
                 // 설명이 공백이면 안됨

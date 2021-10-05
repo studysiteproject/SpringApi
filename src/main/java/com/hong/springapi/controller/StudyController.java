@@ -5,15 +5,12 @@ import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.service.StudyService;
+import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -55,30 +52,18 @@ public class StudyController {
         return id;
     }
 
-    @GetMapping("/cookie")
-    public ResponseEntity<Object> getCookie(HttpServletRequest request){
-        Cookie[] getCookie = request.getCookies();
-        Map<String,String> m = new HashMap<>();
-        if(getCookie != null){
-            for(int i=0; i<getCookie.length; i++){
-                Cookie c = getCookie[i];
-                String name = c.getName(); // 쿠키 이름 가져오기
-                System.out.println("name : " + name);
-                String value = c.getValue(); // 쿠키 값 가져오기
-                System.out.println("value : " + value);
-                m.put(name,value);
-            }
-        }
-        return new ResponseEntity<>(m , HttpStatus.OK);
-    }
+    // ------생성한 스터디 관리--------
 
-    @PostMapping("/cookie")
-    public void addCookie(HttpServletResponse response){
-        Cookie myCookie = new Cookie("test1", "value1");
-        myCookie.setPath("/");
-        response.addCookie(myCookie);
-        myCookie = new Cookie("test2", "value2");
-        myCookie.setPath("/");
-        response.addCookie(myCookie);
+    // 생성한 스터디 전체 불러오기
+    @GetMapping("/study/created")
+    public List<Study> getCreatedStudy(HttpServletRequest request){
+        Map<String,String> map = CookieHandler.getCookie(request);
+        // access_token, index
+        String token = map.get("access_token");
+        System.out.println(token);
+        Long userId = Long.valueOf(map.get("index"));
+        System.out.println(userId);
+
+        return studyRepository.findAllByUserId(userId);
     }
 }
