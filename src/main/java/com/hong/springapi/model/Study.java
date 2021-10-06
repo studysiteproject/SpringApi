@@ -39,6 +39,10 @@ public class Study extends Timestamped {
     @Column
     private int warn_cnt;
 
+
+
+
+
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();
         this.description = requestDto.getDescription();

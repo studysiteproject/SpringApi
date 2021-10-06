@@ -7,11 +7,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class StudyRequestDto {
+public class SearchRequestDto {
     private String title;
-    private Long user_id;
-    private  int maxman;
-    private String description;
     private String place;
+    private String category;
     private List<String> tech;
 }
