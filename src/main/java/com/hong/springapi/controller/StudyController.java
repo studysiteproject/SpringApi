@@ -1,5 +1,6 @@
 package com.hong.springapi.controller;
 
+import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Study;
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -20,27 +22,20 @@ public class StudyController {
     private final StudyService studyService;
 
     // create
-    @Transactional
-    @PostMapping("/study")
-    public Optional<Study> createStudy(@RequestBody StudyRequestDto requestDto){
-       Study study = new Study();
-       study.setTitle(requestDto.getTitle());
-       study.setUser_id(requestDto.getUser_id());
-       study.setPlace(requestDto.getPlace());
-       study.setMaxman(requestDto.getMaxman());
-       study.setWarn_cnt(0);
-       study.setNowman(1);
-       study.setDescription(requestDto.getDescription());
 
-       return studyService.join(study);
+    @PostMapping("/study")
+    public Study createStudy(@RequestBody StudyRequestDto requestDto){
+
+       return studyService.join(requestDto);
     }
-/*
+
     // read all
     @GetMapping("/study")
     public List<Study> getStudys(){
-        return studyRepository.findAll();
-    }
 
+        return studyService.showall();
+    }
+/*
     // read one
     @GetMapping("/study/{id}")
     public Study getStudy(@PathVariable Long id){
