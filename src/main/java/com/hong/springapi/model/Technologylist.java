@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "technologylist")
 public class Technologylist {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id

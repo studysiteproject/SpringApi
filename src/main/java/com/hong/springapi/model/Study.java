@@ -4,13 +4,14 @@ import com.hong.springapi.dto.StudyRequestDto;
 import lombok.*;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "study")
 public class Study extends Timestamped {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +40,8 @@ public class Study extends Timestamped {
     @Column
     private int warn_cnt;
 
-
+//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "study_id")
+//    private List<Categorylist> categorylists;
 
 
 

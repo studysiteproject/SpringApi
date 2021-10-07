@@ -1,6 +1,6 @@
 package com.hong.springapi.service;
 
-import com.hong.springapi.repository.CategoryListRepository;
+import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.TechnologylistRepository;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 public class SpringConfig {
     private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
-    private final CategoryListRepository categorylistRepository;
+    private final CategorylistRepository categorylistRepository;
 
 
     @Bean
