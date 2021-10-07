@@ -1,15 +1,16 @@
 package com.hong.springapi.service;
 
+import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.model.Categorylist;
-import com.hong.springapi.model.CategorylistKey;
 import com.hong.springapi.model.Study;
-import com.hong.springapi.repository.CategoryListRepository;
+import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.TechnologylistRepository;
 import lombok.RequiredArgsConstructor;
 
 import javax.transaction.Transactional;
+import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ import java.util.List;
 public class StudyService {
     private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
-    private final CategoryListRepository categorylistRepository;
+    private final CategorylistRepository categorylistRepository;
 
 
     @Transactional
@@ -51,13 +52,24 @@ public class StudyService {
     }
 
 
-    public List<Study> showall(){
-        return studyRepository.findAll();
-    }
-
-//    public List<Study> findbyparams(SearchRequestDto searchDto){
-//
+//    public List<Study> showall(){
+//        return studyRepository.findAll();
 //    }
+
+    public List<Study> findbyparams(SearchRequestDto searchDto){
+//parameter에 따라 스터디 목록 반환, 모두 null일 시 showall과 동일
+//유효한 parameter인지 검증 필요한가?
+        if(searchDto.getTech() == null ) {
+            return studyRepository.findAllByTitleAndPlaceQuery(
+                    searchDto.getTitle(), searchDto.getPlace());
+        }
+        else {
+            return categorylistRepository.findDistinctAllByTitleAndPlaceAndTechQuery
+                    (searchDto.getTitle(), searchDto.getPlace(),
+                            searchDto.getTech());
+        }
+
+    }
 
 
 

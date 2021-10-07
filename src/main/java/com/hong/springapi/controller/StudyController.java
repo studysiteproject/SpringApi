@@ -31,9 +31,9 @@ public class StudyController {
 
     // read all
     @GetMapping("/study")
-    public List<Study> getStudys(){
+    public List<Study> getStudys(@ModelAttribute SearchRequestDto searchRequestDto){
 
-        return studyService.showall();
+        return studyService.findbyparams(searchRequestDto);
     }
 /*
     // read one

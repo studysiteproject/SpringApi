@@ -11,7 +11,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "categorylist")
 @IdClass(CategorylistKey.class)
 public class Categorylist {
 
