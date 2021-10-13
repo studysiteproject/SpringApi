@@ -28,7 +28,7 @@ public class Applicationlist extends Timestamped{
     private Boolean permission;
 
     @Column
-    private String text;
+    private String description;
 
     public void update(Boolean permission) {
         this.permission = permission;
