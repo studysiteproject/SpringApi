@@ -75,7 +75,7 @@ public class StudyController {
 
     // 스터디 참여현황 조회
     @GetMapping("/study/member/{studyId}")
-    public List<ApplicationlistDto> getApplicationlist(@PathVariable Long studyId){
+    public List<ApplicationlistDto> getParticipationlist(@PathVariable Long studyId){
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
 
         List<ApplicationlistDto> myApplicationlist = new ArrayList<>();
@@ -90,7 +90,18 @@ public class StudyController {
 
     // 스터디 참여현황 수정
     @PostMapping("/study/member/{studyId}")
-    public ResponseEntity<String> updateApplicationlist(@PathVariable Long studyId, @RequestBody List<ApplicationlistDto> requestDto){
+    public ResponseEntity<String> updateParticipationlist(@PathVariable Long studyId, @RequestBody List<ApplicationlistDto> requestDto){
         return studyService.updateApplicationlist(studyId, requestDto);
+    }
+
+    // 신청한 스터디 관리
+    @GetMapping("/study/applicationlist")
+    public List<Study> getApplicationlist(HttpServletRequest request){
+        Map<String,String> map = CookieHandler.getCookie(request);
+        // access_token, index
+        String token = map.get("access_token");
+        Long userId = Long.valueOf(map.get("index"));
+
+        return studyRepository.findAllByUserId(userId);
     }
 }
