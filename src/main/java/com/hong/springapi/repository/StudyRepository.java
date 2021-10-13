@@ -20,8 +20,5 @@ public interface StudyRepository extends JpaRepository<Study, Long>{
             @Param("place") String place
     );
 
-//    @Query("select S from study as S left join S.categorylists as C where S.title = ?1 and S.place = ?2 and C.tech_id = ?3")
-//    public List<Study> findAllByTitleAndPlaceAndTechQuery(String title, String place, Long tech_id);
-
 
 }

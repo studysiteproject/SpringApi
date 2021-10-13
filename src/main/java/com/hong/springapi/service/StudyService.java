@@ -1,25 +1,25 @@
 package com.hong.springapi.service;
 
+import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.StudyRequestDto;
-import com.hong.springapi.model.Categorylist;
-import com.hong.springapi.model.Study;
-import com.hong.springapi.repository.CategorylistRepository;
-import com.hong.springapi.repository.StudyRepository;
-import com.hong.springapi.repository.TechnologylistRepository;
+import com.hong.springapi.model.*;
+import com.hong.springapi.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Collections;
 import java.util.List;
 
 @RequiredArgsConstructor
-@Transactional
+@Service
 public class StudyService {
     private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
     private final CategorylistRepository categorylistRepository;
-
+    private final UserRepository userRepository;
+    private final User_favoriteRepository user_favoriteRepository;
 
     @Transactional
     public Study join(StudyRequestDto requestDto){
@@ -34,8 +34,9 @@ public class StudyService {
                 .description(requestDto.getDescription())
                 .build()
         );
-        addCategory(studyRepository.findById(res.getId()).get(), requestDto.getTech());
-
+         if(requestDto.getTech()!=null) {
+             addCategory(studyRepository.findById(res.getId()).get(), requestDto.getTech());
+         }
         return res;
 
     }
@@ -51,10 +52,29 @@ public class StudyService {
         }
     }
 
+    @Transactional
+    public Study addFavorite(GetFavoriteDto getFavoriteDto){
+        Study study = studyRepository.findById(getFavoriteDto.getStudy_id()).get();
+        User user = userRepository.findById(getFavoriteDto.getUser_id()).get();
+        //user, study validity check
 
-//    public List<Study> showall(){
-//        return studyRepository.findAll();
-//    }
+        user_favoriteRepository.save(User_favorite.builder()
+                .study_id(study)
+                .user_id(user)
+                .build()
+        );
+
+        return study;
+    }
+
+    public List<Study> getFavoritelist(Long user_id){
+        //user_id validity check
+
+
+//        User user = userRepository.findByUser_idQuery(user_id).get();
+
+        return user_favoriteRepository.findDistinctAllByUser_idQuery(user_id);
+    }
 
     public List<Study> findbyparams(SearchRequestDto searchDto){
 //parameter에 따라 스터디 목록 반환, 모두 null일 시 showall과 동일
