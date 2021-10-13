@@ -1,5 +1,6 @@
 package com.hong.springapi.controller;
 
+import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
@@ -35,6 +36,20 @@ public class StudyController {
 
         return studyService.findbyparams(searchRequestDto);
     }
+
+    //add favoritelist
+    @PostMapping("/study/favorite")
+    public Study addfavorite(@RequestBody GetFavoriteDto getFavoriteDto){
+        //추후 쿠키인증해서 user id 받아오기
+        return studyService.addFavorite(getFavoriteDto);
+    }
+
+    @GetMapping("/study/favorite")
+    public List<Study> getFavorites(@RequestParam(value = "id") Long user_id){
+        //추후 쿠키 인증해서 직접 받아오기
+        return studyService.getFavoritelist(user_id);
+    }
+
 /*
     // read one
     @GetMapping("/study/{id}")
