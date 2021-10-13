@@ -1,6 +1,7 @@
 package com.hong.springapi.controller;
 
 import com.hong.springapi.repository.StudyRepository;
+import com.hong.springapi.util.CookieHandler;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -41,5 +42,11 @@ public class CookieController {
         myCookie = new Cookie("test2", "value2");
         myCookie.setPath("/");
         response.addCookie(myCookie);
+    }
+
+    @GetMapping("/test")
+    public void test(HttpServletRequest request){
+        if (CookieHandler.checkValidation(request)) System.out.println("success");
+        else System.out.println("fail");
     }
 }

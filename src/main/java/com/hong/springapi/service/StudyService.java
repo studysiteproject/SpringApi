@@ -23,16 +23,17 @@ public class StudyService {
     private final ApplicationlistRepository applicationlistRepository;
 
     @Transactional
-    public Long update(Long id, StudyRequestDto requestDto) {
-        Study study = studyRepository.findById(id).orElseThrow(StudyNotFoundException::new);
+    public Long update(Long studyId, StudyRequestDto requestDto) {
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
         study.update(requestDto);
-        return id;
+        return studyId;
     }
 
     public Study createStudy(StudyRequestDto requestDto) {
         return studyRepository.save(Study.builder()
                 // 장소가 공백이면 안됨
                 .title(requestDto.getTitle())
+                // 유저아이디는 수정 불가능
                 .userId(requestDto.getUser_id())
                 // maxman 2이상 이어야함
                 .maxman(requestDto.getMaxman())
@@ -45,7 +46,7 @@ public class StudyService {
     }
 
     @Transactional
-    public ResponseEntity<String> updateApplicationlist(Long studyId, List<ApplicationlistDto> requestDtolist) {
+    public ResponseEntity<String> updateParticipationlist(Long studyId, List<ApplicationlistDto> requestDtolist) {
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
 
         for (Applicationlist application : applicationlist){
