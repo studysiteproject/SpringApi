@@ -21,4 +21,6 @@ public interface StudyRepository extends JpaRepository<Study, Long>{
     );
 
 
+    Optional<List<Study>> findAllByUserId(Long userId);
+    Optional<Study> findByUserId(Long userId);
 }
