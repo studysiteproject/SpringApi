@@ -1,11 +1,7 @@
 package com.hong.springapi.model;
 
 import com.hong.springapi.dto.StudyRequestDto;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
 
 import javax.persistence.*;
 
@@ -13,7 +9,7 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "study")
 public class Study extends Timestamped {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -23,15 +19,14 @@ public class Study extends Timestamped {
     @Column
     private String title;
 
-    @Column (name = "user_id")
-    private Long userId;
+    @Column
+    private Long user_id;
 
     @Column
     private  int maxman;
 
     @Column
-    @Builder.Default
-    private int nowman = 1;
+    private int nowman;
 
     @Column
     private String description;
@@ -39,9 +34,8 @@ public class Study extends Timestamped {
     @Column
     private String place;
 
-    @Builder.Default
-    @Column(name = "warn_cnt")
-    private int warnCnt = 0;
+    @Column
+    private int warn_cnt;
 
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();
