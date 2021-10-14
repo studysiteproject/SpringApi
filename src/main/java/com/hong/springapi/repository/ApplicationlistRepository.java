@@ -7,5 +7,4 @@ import java.util.List;
 
 public interface ApplicationlistRepository extends JpaRepository<Applicationlist,Long> {
     List<Applicationlist> findAllByStudyId(Long studyId);
-    List<Applicationlist> findAllByUserId(Long userId);
 }
