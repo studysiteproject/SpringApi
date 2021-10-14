@@ -3,8 +3,6 @@ package com.hong.springapi.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 public class StudyRequestDto {
@@ -13,5 +11,4 @@ public class StudyRequestDto {
     private  int maxman;
     private String description;
     private String place;
-    private List<String> tech;
 }
