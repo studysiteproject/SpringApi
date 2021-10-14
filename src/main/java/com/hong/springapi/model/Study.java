@@ -2,28 +2,26 @@ package com.hong.springapi.model;
 
 import com.hong.springapi.dto.StudyRequestDto;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
-import java.util.List;
 
 @Getter
-@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "study")
 public class Study extends Timestamped {
 
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    @Column(name ="id", updatable = false, nullable = false)
     private Long id;
 
     @Column
     private String title;
 
-    @Column
-    private Long user_id;
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column
     private  int maxman;
@@ -39,11 +37,6 @@ public class Study extends Timestamped {
 
     @Column
     private int warn_cnt;
-
-//    @OneToMany(cascade = CascadeType.ALL, mappedBy = "study_id")
-//    private List<Categorylist> categorylists;
-
-
 
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();
