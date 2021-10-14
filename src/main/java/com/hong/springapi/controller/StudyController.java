@@ -11,14 +11,12 @@ import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
