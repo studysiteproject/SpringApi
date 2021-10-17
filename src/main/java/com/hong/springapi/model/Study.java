@@ -14,6 +14,7 @@ public class Study extends Timestamped {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @Column(name ="id", updatable = false, nullable = false)
     private Long id;
 
     @Column
