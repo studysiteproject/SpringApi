@@ -28,6 +28,8 @@ import java.util.List;
 @RequiredArgsConstructor
 @Service
 public class StudyService {
+
+    private final StudyRepository studyRepository;
     private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
     private final CategorylistRepository categorylistRepository;
