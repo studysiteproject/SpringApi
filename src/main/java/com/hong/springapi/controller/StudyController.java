@@ -17,24 +17,12 @@ import com.hong.springapi.service.StudyService;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.hong.springapi.util.CookieHandler;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import javax.transaction.Transactional;
-import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -45,6 +33,7 @@ public class StudyController {
     private final ApplicationlistRepository applicationlistRepository;
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
+
     // create
     @PostMapping("/study")
     public Study createStudy(@RequestBody StudyRequestDto requestDto){
@@ -76,9 +65,8 @@ public class StudyController {
     @GetMapping("/study/favorite")
     public List<Study> getFavorites(@RequestParam(value = "id") Long user_id){
         //추후 쿠키 인증해서 직접 받아오기
-        return studyService.getFavoritelist(user_id);
+        return user_favoriteRepository.findDistinctAllByUser_idQuery(user_id);
     }
-
 
     // read one
     @GetMapping("/study/{studyId}")
