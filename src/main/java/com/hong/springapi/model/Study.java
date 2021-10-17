@@ -2,7 +2,6 @@ package com.hong.springapi.model;
 
 import com.hong.springapi.dto.StudyRequestDto;
 import lombok.*;
-import org.hibernate.annotations.ColumnDefault;
 
 import javax.persistence.*;
 
@@ -20,8 +19,8 @@ public class Study extends Timestamped {
     @Column
     private String title;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column
+    private Long user_id;
 
     @Column
     private  int maxman;
