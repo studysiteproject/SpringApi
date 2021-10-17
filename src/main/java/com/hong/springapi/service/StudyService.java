@@ -30,7 +30,6 @@ import java.util.List;
 public class StudyService {
 
     private final StudyRepository studyRepository;
-    private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
     private final CategorylistRepository categorylistRepository;
     private final UserRepository userRepository;
@@ -44,7 +43,7 @@ public class StudyService {
                 .userId(requestDto.getUser_id())
                 .place(requestDto.getPlace())
                 .maxman(requestDto.getMaxman())
-                .warn_cnt(0)
+                .warnCnt(0)
                 .nowman(1)
                 .description(requestDto.getDescription())
                 .build()
@@ -72,7 +71,6 @@ public class StudyService {
         Study study = studyRepository.findById(getFavoriteDto.getStudy_id()).get();
         User user = userRepository.findById(getFavoriteDto.getUser_id()).get();
         //user, study validity check
-
         user_favoriteRepository.save(User_favorite.builder()
                 .study_id(study)
                 .user_id(user)
@@ -81,9 +79,6 @@ public class StudyService {
 
         return study;
     }
-
-
-
 
     private final ApplicationlistRepository applicationlistRepository;
 
