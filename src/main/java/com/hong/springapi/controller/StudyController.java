@@ -1,18 +1,25 @@
 package com.hong.springapi.controller;
 
+import com.hong.springapi.dto.ApplicationlistDto;
+import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
+import com.hong.springapi.exception.exceptions.UserValidationException;
+import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
+import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -33,6 +40,7 @@ public class StudyController {
     public List<Study> getStudys(){
         return studyRepository.findAll();
     }
+
     //add favoritelist
     @PostMapping("/study/favorite")
     public Study addfavorite(@RequestBody GetFavoriteDto getFavoriteDto){
