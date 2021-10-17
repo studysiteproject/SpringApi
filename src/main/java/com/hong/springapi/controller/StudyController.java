@@ -23,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @RestController
 public class StudyController {
-
+//temporary
     private final StudyRepository studyRepository;
     private final StudyService studyService;
     private final ApplicationlistRepository applicationlistRepository;
