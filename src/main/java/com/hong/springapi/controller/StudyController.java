@@ -1,6 +1,7 @@
 package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.ApplicationlistDto;
+import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
@@ -11,12 +12,14 @@ import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,31 +41,38 @@ public class StudyController {
         return studyRepository.findAll();
     }
 
-    // read one
-    @GetMapping("/study/{studyId}")
-    public Study getStudy(@PathVariable Long studyId){
-        return studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+    //add favoritelist
+    @PostMapping("/study/favorite")
+    public Study addfavorite(@RequestBody GetFavoriteDto getFavoriteDto){
+        //추후 쿠키인증해서 user id 받아오기
+        return studyService.addFavorite(getFavoriteDto);
+    }
+
+    @GetMapping("/study/favorite")
+    public List<Study> getFavorites(@RequestParam(value = "id") Long user_id){
+        //추후 쿠키 인증해서 직접 받아오기
+        return studyService.getFavoritelist(user_id);
     }
 
     // update
     @PutMapping("/study/{studyId}")
-    public Long updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
+    public Long updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request) {
         // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)){
+        if (!CookieHandler.checkValidation(request)) {
             throw new UserValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long userId = CookieHandler.getUserIdFromCookies(request);
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)){
+        if (!study.getUserId().equals(userId)) {
             throw new StudyNotFoundException();
         }
 
-        return studyService.update(studyId,requestDto);
+        return studyService.update(studyId, requestDto);
     }
 
-    // delete
+    //delete
     // 본인 확인 코드 필요
     @DeleteMapping("/study/{studyId}")
     public Long deleteStudy(@PathVariable Long studyId, HttpServletRequest request) throws StudyNotFoundException {
@@ -143,3 +153,5 @@ public class StudyController {
 //    }
 
 }
+
+
