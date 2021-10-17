@@ -14,12 +14,13 @@ public class Study extends Timestamped {
 
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
+    @Column(name ="id", updatable = false, nullable = false)
     private Long id;
 
     @Column
     private String title;
 
-    @Column (name = "user_id")
+    @Column(name = "user_id")
     private Long userId;
 
     @Column

@@ -1,5 +1,7 @@
 package com.hong.springapi.controller;
 
+import com.hong.springapi.dto.GetFavoriteDto;
+import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.ApplicationlistDto;
 import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.StudyRequestDto;
@@ -8,7 +10,10 @@ import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.ApplicationlistRepository;
+import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
+import com.hong.springapi.repository.User_favoriteRepository;
+import com.hong.springapi.service.StudyService;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +21,19 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.hong.springapi.util.CookieHandler;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.transaction.Transactional;
+import java.util.HashMap;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -28,17 +43,27 @@ public class StudyController {
     private final StudyRepository studyRepository;
     private final StudyService studyService;
     private final ApplicationlistRepository applicationlistRepository;
-
+    private final CategorylistRepository categorylistRepository;
+    private final User_favoriteRepository user_favoriteRepository;
     // create
     @PostMapping("/study")
     public Study createStudy(@RequestBody StudyRequestDto requestDto){
-        return studyService.createStudy(requestDto);
+       return studyService.join(requestDto);
     }
 
     // read all
     @GetMapping("/study")
-    public List<Study> getStudys(){
-        return studyRepository.findAll();
+    public List<Study> getStudys(@ModelAttribute SearchRequestDto searchRequestDto){
+
+        if(searchRequestDto.getTech() == null ) {
+            return studyRepository.findAllByTitleAndPlaceQuery(
+                    searchRequestDto.getTitle(), searchRequestDto.getPlace());
+        }
+        else {
+            return categorylistRepository.findDistinctAllByTitleAndPlaceAndTechQuery
+                    (searchRequestDto.getTitle(), searchRequestDto.getPlace(),
+                            searchRequestDto.getTech());
+        }
     }
 
     //add favoritelist
@@ -54,25 +79,32 @@ public class StudyController {
         return studyService.getFavoritelist(user_id);
     }
 
+
+    // read one
+    @GetMapping("/study/{studyId}")
+    public Study getStudy(@PathVariable Long studyId){
+        return studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+    }
+
     // update
     @PutMapping("/study/{studyId}")
-    public Long updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request) {
+    public Long updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
         // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)) {
+        if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long userId = CookieHandler.getUserIdFromCookies(request);
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)) {
+        if (!study.getUserId().equals(userId)){
             throw new StudyNotFoundException();
         }
 
-        return studyService.update(studyId, requestDto);
+        return studyService.update(studyId,requestDto);
     }
 
-    //delete
+    // delete
     // 본인 확인 코드 필요
     @DeleteMapping("/study/{studyId}")
     public Long deleteStudy(@PathVariable Long studyId, HttpServletRequest request) throws StudyNotFoundException {

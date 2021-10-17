@@ -31,8 +31,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     implementation 'org.springframework.boot:spring-boot-devtools:2.5.4'
-    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
-    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version : '2.4.1'
+//    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client'
+//    implementation group: 'org.mariadb.jdbc', name: 'mariadb-java-client', version : '2.4.1'
 
 }
 
