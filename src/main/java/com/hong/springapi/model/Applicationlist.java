@@ -12,15 +12,14 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Applicationlist extends Timestamped{
+@IdClass(ApplicationlistKey.class)
+public class Applicationlist extends Timestamped {
 
-    @GeneratedValue(strategy = GenerationType.AUTO)
     @Id
-    private Long id;
-
     @Column(name = "user_id")
     private Long userId;
 
+    @Id
     @Column (name = "study_id")
     private Long studyId;
 

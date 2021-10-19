@@ -3,11 +3,16 @@ package com.hong.springapi.service;
 import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.StudyRequestDto;
+import com.hong.springapi.exception.exceptions.TokenValidationException;
+import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
+import com.hong.springapi.response.Response;
+import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import java.util.Collections;
 import com.hong.springapi.dto.ApplicationlistDto;
@@ -34,6 +39,7 @@ public class StudyService {
     private final CategorylistRepository categorylistRepository;
     private final UserRepository userRepository;
     private final User_favoriteRepository user_favoriteRepository;
+    private final ApplicationlistRepository applicationlistRepository;
 
     @Transactional
     public Study join(StudyRequestDto requestDto){
@@ -80,34 +86,68 @@ public class StudyService {
         return study;
     }
 
-    private final ApplicationlistRepository applicationlistRepository;
-
     @Transactional
-    public Long update(Long studyId, StudyRequestDto requestDto) {
+    public ResponseEntity<Response> updateStudy(Long studyId, StudyRequestDto requestDto, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long userId = CookieHandler.getUserIdFromCookies(request);
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUserId().equals(userId)){
+            throw new UserValidationException();
+        }
         study.update(requestDto);
-        return studyId;
+        return new ResponseEntity<>(new Response("success", "update success"), HttpStatus.OK);
     }
 
-    public Study createStudy(StudyRequestDto requestDto) {
-        return studyRepository.save(Study.builder()
-                // 장소가 공백이면 안됨
-                .title(requestDto.getTitle())
-                // 유저아이디는 수정 불가능
-                .userId(requestDto.getUser_id())
-                // maxman 2이상 이어야함
-                .maxman(requestDto.getMaxman())
-                // 설명이 공백이면 안됨
-                .description(requestDto.getDescription())
-                // 장소가 공백이면 안됨
-                .place(requestDto.getPlace())
-                .build()
-        );
+    public ResponseEntity<Response> deleteStudy(Long studyId, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUserId().equals(userId)){
+            throw new UserValidationException();
+        }
+        studyRepository.deleteById(studyId);
+
+        return new ResponseEntity<>(new Response("success", "delete success"), HttpStatus.OK);
     }
+
+//    public Study createStudy(StudyRequestDto requestDto) {
+//        return studyRepository.save(Study.builder()
+//                // 장소가 공백이면 안됨
+//                .title(requestDto.getTitle())
+//                // 유저아이디는 수정 불가능
+//                .userId(requestDto.getUser_id())
+//                // maxman 2이상 이어야함
+//                .maxman(requestDto.getMaxman())
+//                // 설명이 공백이면 안됨
+//                .description(requestDto.getDescription())
+//                // 장소가 공백이면 안됨
+//                .place(requestDto.getPlace())
+//                .build()
+//        );
+//    }
 
     @Transactional
-    public ResponseEntity<String> updateParticipationlist(Long studyId, List<ApplicationlistDto> requestDtolist) {
-        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
+    public ResponseEntity<Response> updateParticipationlist(Long studyId, List<ApplicationlistDto> requestDtolist, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUserId().equals(userId)){
+            throw new StudyNotFoundException();
+        }
+
+        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId).orElseThrow(StudyNotFoundException::new);
 
         for (Applicationlist application : applicationlist){
             for (ApplicationlistDto requestDto : requestDtolist){
@@ -115,7 +155,8 @@ public class StudyService {
                     application.update(requestDto.getPermission());
             }
         }
-        return new ResponseEntity<> ("success", HttpStatus.OK);
+        return new ResponseEntity<> (new Response("success", "update success"), HttpStatus.OK);
     }
+
 
 }

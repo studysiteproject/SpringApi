@@ -3,20 +3,23 @@ package com.hong.springapi.controller;
 import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.SearchRequestDto;
 import com.hong.springapi.dto.ApplicationlistDto;
-import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
+import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.Applicationlist;
+import com.hong.springapi.model.ApplicationlistKey;
 import com.hong.springapi.model.Study;
+import com.hong.springapi.model.UserResume;
 import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.User_favoriteRepository;
-import com.hong.springapi.service.StudyService;
+import com.hong.springapi.response.Response;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -76,39 +79,15 @@ public class StudyController {
 
     // update
     @PutMapping("/study/{studyId}")
-    public Long updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
-        // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)){
-            throw new UserValidationException();
-        }
-        // 본인이 작성한 스터디글인지 검사
-        // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)){
-            throw new StudyNotFoundException();
-        }
-
-        return studyService.update(studyId,requestDto);
+    public ResponseEntity<Response> updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
+        return studyService.updateStudy(studyId,requestDto,request);
     }
 
     // delete
     // 본인 확인 코드 필요
     @DeleteMapping("/study/{studyId}")
-    public Long deleteStudy(@PathVariable Long studyId, HttpServletRequest request) throws StudyNotFoundException {
-        // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)){
-            throw new UserValidationException();
-        }
-        // 본인이 작성한 스터디글인지 검사
-        // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)){
-            throw new StudyNotFoundException();
-        }
-        studyRepository.deleteById(studyId);
-        return studyId;
+    public ResponseEntity<Response> deleteStudy(@PathVariable Long studyId, HttpServletRequest request) throws StudyNotFoundException {
+        return studyService.deleteStudy(studyId,request);
     }
 
     // ------생성한 스터디 관리--------
@@ -118,7 +97,7 @@ public class StudyController {
     public List<Study> getCreatedStudy(HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
-            throw new UserValidationException();
+            throw new TokenValidationException();
         }
 
         Long userId = null;
@@ -129,15 +108,20 @@ public class StudyController {
     }
 
     // 스터디 참여현황 조회
-    // 에러처리 뭐로하지?
     @GetMapping("/study/member/{studyId}")
     public List<ApplicationlistDto> getParticipationlist(@PathVariable Long studyId, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
-            throw new UserValidationException();
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUserId().equals(userId)){
+            throw new StudyNotFoundException();
         }
 
-        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
+        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId).orElseThrow(StudyNotFoundException::new);
 
         List<ApplicationlistDto> myApplicationlist = new ArrayList<>();
         for (Applicationlist application : applicationlist){
@@ -151,27 +135,54 @@ public class StudyController {
 
     // 스터디 참여현황 수정
     @PutMapping("/study/member/{studyId}")
-    public ResponseEntity<String> updateParticipationlist(@PathVariable Long studyId, @RequestBody List<ApplicationlistDto> requestDto, HttpServletRequest request){
-        // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)){
-            throw new UserValidationException();
-        }
-        // 본인이 작성한 스터디글인지 검사
-        // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)){
-            throw new StudyNotFoundException();
-        }
-        return studyService.updateParticipationlist(studyId, requestDto);
+    public ResponseEntity<Response> updateParticipationlist(@PathVariable Long studyId, @RequestBody List<ApplicationlistDto> requestDto, HttpServletRequest request){
+        return studyService.updateParticipationlist(studyId, requestDto, request);
     }
 
-    // 신청한 스터디 관리
-//    @GetMapping("/study/applicationlist")
-//    public List<Applicationlist> getApplicationlist(HttpServletRequest request){
+//    // 스터디 참여자 이력서 조회
+//    @GetMapping("/study/member/resume/{user_id}")
+//    public UserResume getUserResume(@PathVariable Long userId){
 //
 //    }
 
+    // ------신청한 스터디 관리--------
+
+    // 신청한 스터디 전체 조회
+    @GetMapping("/study/applicationlist")
+    public List<String> getApplicationlist(HttpServletRequest request){
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+       List<Applicationlist> applicationlist = applicationlistRepository.findAllByUserId(userId).orElseThrow(StudyNotFoundException::new);
+
+       List<String> myApplicationlist = new ArrayList<>();
+       for (Applicationlist application : applicationlist){
+           myApplicationlist.add(String.valueOf(application.getStudyId()));
+       }
+       return myApplicationlist;
+    }
+
+    // 신청한 스터디 탈퇴
+    @DeleteMapping("/study/applicationlist/{studyId}")
+    public ResponseEntity<Response> deleteApplicationlist(@PathVariable Long studyId, HttpServletRequest request){
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 신청한 스터디글인지 검사
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+        List<Applicationlist> myApplicationlist = applicationlistRepository.findAllByUserId(userId).orElseThrow(StudyNotFoundException::new);
+
+        for (Applicationlist myApplication : myApplicationlist){
+            if (myApplication.getStudyId().equals(studyId)){
+                applicationlistRepository.delete(myApplication);
+                return new ResponseEntity<> (new Response("success", "delete success"), HttpStatus.OK);
+            }
+        }
+        return new ResponseEntity<> (new Response("fail", "delete fail"), HttpStatus.BAD_REQUEST);
+    }
 }
 
 
