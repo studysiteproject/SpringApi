@@ -1,27 +1,17 @@
 package com.hong.springapi.controller;
 
-import com.hong.springapi.dto.ApplicationlistDto;
-import com.hong.springapi.exception.exceptions.StudyNotFoundException;
-import com.hong.springapi.exception.exceptions.TokenValidationException;
-import com.hong.springapi.model.Applicationlist;
-import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.ApplicationlistRepository;
-import com.hong.springapi.repository.StudyRepository;
-import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
