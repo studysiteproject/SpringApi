@@ -84,27 +84,28 @@ public class StudyService {
 
     @Transactional
     public ResponseEntity<Response> updateStudy(Long studyId, StudyRequestDto requestDto, HttpServletRequest request) {
-//        // 유효한 토큰인지 검사
-//        if (!CookieHandler.checkValidation(request)){
-//            throw new TokenValidationException();
-//        }
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
         // 본인이 작성한 스터디글인지 검사
-//        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Long userId = CookieHandler.getUser_idFromCookies(request);
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-//        if (!study.getUserId().equals(userId)){
-//            throw new UserValidationException();
-//        }
+        if (!study.getUser_id().equals(userId)){
+            throw new UserValidationException();
+        }
+
         // 제목이 공백이면 안됨
-        if (requestDto.getTitle().trim().equals("")) throw new BadRequestException();
+        if (requestDto.getTitle().trim().equals("") || requestDto.getMaxman() > 50) throw new BadRequestException();
         // 장소가 공백이면 안됨
         if (requestDto.getPlace().trim().equals("")) throw new BadRequestException();
         // maxman 2이상 이어야함
-        if (requestDto.getMaxman() < 2) throw new BadRequestException();
+        if (requestDto.getMaxman() < 2 || requestDto.getMaxman() > 100) throw new BadRequestException();
         // 설명이 공백이면 안됨
         if (requestDto.getDescription().trim().equals("")) throw new BadRequestException();
 
         study.update(requestDto);
-        // 카테고리 수정 종찬이랑 얘기
+        // 카테고리 수정
         if(requestDto.getTech() != null) {
             addCategory(study, requestDto.getTech());
         }

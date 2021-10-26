@@ -20,7 +20,7 @@ public class Study extends Timestamped {
     @Column
     private String title;
 
-    @Column()
+    @Column
     private Long user_id;
 
     @Column
