@@ -38,7 +38,7 @@ public class StudyController {
     // create
     @PostMapping("/study")
     public Study createStudy(@RequestBody StudyRequestDto requestDto){
-       return studyService.join(requestDto);
+        return studyService.join(requestDto);
     }
 
     // read all
