@@ -8,9 +8,7 @@ import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.Applicationlist;
-import com.hong.springapi.model.ApplicationlistKey;
 import com.hong.springapi.model.Study;
-import com.hong.springapi.model.UserResume;
 import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
@@ -72,22 +70,21 @@ public class StudyController {
     }
 
     // read one
-    @GetMapping("/study/{studyId}")
-    public Study getStudy(@PathVariable Long studyId){
-        return studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+    @GetMapping("/study/{study_id}")
+    public Study getStudy(@PathVariable Long study_id){
+        return studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
     }
 
     // update
-    @PutMapping("/study/{studyId}")
-    public ResponseEntity<Response> updateStudy(@PathVariable Long studyId, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
-        return studyService.updateStudy(studyId,requestDto,request);
+    @PutMapping("/study/{study_id}")
+    public ResponseEntity<Response> updateStudy(@PathVariable Long study_id, @RequestBody StudyRequestDto requestDto, HttpServletRequest request){
+        return studyService.updateStudy(study_id,requestDto,request);
     }
 
     // delete
-    // 본인 확인 코드 필요
-    @DeleteMapping("/study/{studyId}")
-    public ResponseEntity<Response> deleteStudy(@PathVariable Long studyId, HttpServletRequest request) throws StudyNotFoundException {
-        return studyService.deleteStudy(studyId,request);
+    @DeleteMapping("/study/{study_id}")
+    public ResponseEntity<Response> deleteStudy(@PathVariable Long study_id, HttpServletRequest request) throws StudyNotFoundException {
+        return studyService.deleteStudy(study_id,request);
     }
 
     // ------생성한 스터디 관리--------
@@ -99,34 +96,34 @@ public class StudyController {
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
 
-        Long userId = null;
-        if (CookieHandler.checkValidation(request)){
-            userId = CookieHandler.getUserIdFromCookies(request);
-        }
-        return studyRepository.findAllByUserId(userId).orElseThrow(UserValidationException::new);
+        return studyRepository.findAllByUser_id(user_id).orElseThrow(UserValidationException::new);
     }
 
     // 스터디 참여현황 조회
-    @GetMapping("/study/member/{studyId}")
-    public List<ApplicationlistDto> getParticipationlist(@PathVariable Long studyId, HttpServletRequest request){
+    @GetMapping("/study/member/{study_id}")
+    public List<ApplicationlistDto> getParticipationlist(@PathVariable Long study_id, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUserId().equals(userId)){
+        Long userId = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(userId)){
             throw new StudyNotFoundException();
         }
 
-        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId).orElseThrow(StudyNotFoundException::new);
+        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
         List<ApplicationlistDto> myApplicationlist = new ArrayList<>();
         for (Applicationlist application : applicationlist){
+            // 본인은 제외하고 보여줌
+            if (application.getUser_id().equals(userId)) continue;
+
             ApplicationlistDto myApplication = new ApplicationlistDto();
-            myApplication.setUser_id(application.getUserId());
+            myApplication.setUser_id(application.getUser_id());
             myApplication.setPermission(application.getPermission());
             myApplicationlist.add(myApplication);
         }
@@ -134,54 +131,48 @@ public class StudyController {
     }
 
     // 스터디 참여현황 수정
-    @PutMapping("/study/member/{studyId}")
-    public ResponseEntity<Response> updateParticipationlist(@PathVariable Long studyId, @RequestBody List<ApplicationlistDto> requestDto, HttpServletRequest request){
-        return studyService.updateParticipationlist(studyId, requestDto, request);
+    @PutMapping("/study/member/{study_id}")
+    public ResponseEntity<Response> updateParticipationlist(@PathVariable Long study_id, @RequestBody List<ApplicationlistDto> requestDto, HttpServletRequest request){
+        return studyService.updateParticipationlist(study_id, requestDto, request);
     }
-
-//    // 스터디 참여자 이력서 조회
-//    @GetMapping("/study/member/resume/{user_id}")
-//    public UserResume getUserResume(@PathVariable Long userId){
-//
-//    }
 
     // ------신청한 스터디 관리--------
 
     // 신청한 스터디 전체 조회
     @GetMapping("/study/applicationlist")
-    public List<String> getApplicationlist(HttpServletRequest request){
+    public List<Study> getApplicationlist(HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-       List<Applicationlist> applicationlist = applicationlistRepository.findAllByUserId(userId).orElseThrow(StudyNotFoundException::new);
+       Long userId = CookieHandler.getUser_idFromCookies(request);
+       List<Applicationlist> applicationlist = applicationlistRepository.findAllByUser_id(userId).orElseThrow(StudyNotFoundException::new);
 
-       List<String> myApplicationlist = new ArrayList<>();
+       List<Study> myApplicationlist = new ArrayList<>();
        for (Applicationlist application : applicationlist){
-           myApplicationlist.add(String.valueOf(application.getStudyId()));
+           myApplicationlist.add(studyRepository.findById(application.getStudy_id()).orElseThrow(StudyNotFoundException::new));
        }
        return myApplicationlist;
     }
 
     // 신청한 스터디 탈퇴
-    @DeleteMapping("/study/applicationlist/{studyId}")
-    public ResponseEntity<Response> deleteApplicationlist(@PathVariable Long studyId, HttpServletRequest request){
+    @DeleteMapping("/study/applicationlist/{study_id}")
+    public ResponseEntity<Response> deleteApplicationlist(@PathVariable Long study_id, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 신청한 스터디글인지 검사
-        Long userId = CookieHandler.getUserIdFromCookies(request);
-        List<Applicationlist> myApplicationlist = applicationlistRepository.findAllByUserId(userId).orElseThrow(StudyNotFoundException::new);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        List<Applicationlist> myApplicationlist = applicationlistRepository.findAllByUser_id(user_id).orElseThrow(StudyNotFoundException::new);
 
         for (Applicationlist myApplication : myApplicationlist){
-            if (myApplication.getStudyId().equals(studyId)){
+            if (myApplication.getStudy_id().equals(study_id)){
                 applicationlistRepository.delete(myApplication);
                 return new ResponseEntity<> (new Response("success", "delete success"), HttpStatus.OK);
             }
         }
-        return new ResponseEntity<> (new Response("fail", "delete fail"), HttpStatus.BAD_REQUEST);
+        throw new StudyNotFoundException();
     }
 }
 

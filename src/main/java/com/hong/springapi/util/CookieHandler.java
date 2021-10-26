@@ -23,7 +23,7 @@ public class CookieHandler {
         return map;
     }
 
-    static public Long getUserIdFromCookies(HttpServletRequest request){
+    static public Long getUser_idFromCookies(HttpServletRequest request){
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             for (Cookie cookie : cookies) {

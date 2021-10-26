@@ -12,6 +12,6 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ApplicationlistKey implements Serializable {
-    private Long userId;
-    private Long studyId;
+    private Long user_id;
+    private Long study_id;
 }

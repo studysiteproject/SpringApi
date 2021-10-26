@@ -20,6 +20,6 @@ public interface StudyRepository extends JpaRepository<Study, Long>{
             @Param("place") String place
     );
 
-    Optional<List<Study>> findAllByUserId(Long userId);
-    Optional<Study> findByUserId(Long userId);
+    @Query("select S from study S where S.user_id = :user_id")
+    Optional<List<Study>> findAllByUser_id(Long user_id);
 }

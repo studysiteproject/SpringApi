@@ -11,17 +11,17 @@ import javax.persistence.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@Entity
+@Entity(name = "applicationlist")
 @IdClass(ApplicationlistKey.class)
 public class Applicationlist extends Timestamped {
 
     @Id
-    @Column(name = "user_id")
-    private Long userId;
+    @Column()
+    private Long user_id;
 
     @Id
-    @Column (name = "study_id")
-    private Long studyId;
+    @Column()
+    private Long study_id;
 
     @Column
     private Boolean permission;

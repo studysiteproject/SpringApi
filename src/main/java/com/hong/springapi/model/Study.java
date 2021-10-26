@@ -20,11 +20,11 @@ public class Study extends Timestamped {
     @Column
     private String title;
 
-    @Column(name = "user_id")
-    private Long userId;
+    @Column()
+    private Long user_id;
 
     @Column
-    private  int maxman;
+    private int maxman;
 
     @Column
     @Builder.Default
@@ -37,8 +37,8 @@ public class Study extends Timestamped {
     private String place;
 
     @Builder.Default
-    @Column(name = "warn_cnt")
-    private int warnCnt = 0;
+    @Column()
+    private int warn_cnt = 0;
 
     public void update(StudyRequestDto requestDto){
         this.title = requestDto.getTitle();
