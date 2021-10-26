@@ -1,28 +1,23 @@
 package com.hong.springapi.service;
 
-import com.hong.springapi.dto.GetFavoriteDto;
-import com.hong.springapi.dto.SearchRequestDto;
-import com.hong.springapi.dto.StudyRequestDto;
+import com.hong.springapi.dto.*;
+import com.hong.springapi.exception.exceptions.UserNotFoundException;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
-import java.util.Collections;
-import com.hong.springapi.dto.ApplicationlistDto;
+
 import com.hong.springapi.dto.StudyRequestDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.StudyRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -33,6 +28,7 @@ public class StudyService {
     private final CategorylistRepository categorylistRepository;
     private final UserRepository userRepository;
     private final User_favoriteRepository user_favoriteRepository;
+    private final Study_reportRepository study_reportRepository;
 
     @Transactional
     public Study join(StudyRequestDto requestDto){
@@ -119,6 +115,51 @@ public class StudyService {
             }
         }
         return new ResponseEntity<> ("success", HttpStatus.OK);
+    }
+
+
+    @Transactional
+    public Study reportStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
+        //중복 확인 + 유효성 검증
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
+        User_favoriteKey user_favoriteKey = new User_favoriteKey(
+                user_id, study_id
+        );
+
+        if(study_reportRepository.findById(user_favoriteKey) != null){
+            throw new IllegalStateException("이미 신고한 게시글입니다.");
+        }
+
+        study_reportRepository.save(Study_report.builder()
+                .study_id(study)
+                .user_id(user)
+                .description(studyReportDto.getDescription())
+                .build()
+        );
+        study.setWarn_cnt(study.getWarn_cnt() + 1);
+
+        return studyRepository.save(study);
+
+    }
+
+
+    @Transactional
+    public Study reportundo(Long study_id, Long user_id){
+        //해당 신고내역이 있는 지 확인해야함
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
+        User_favoriteKey user_favoriteKey = new User_favoriteKey(
+                user_id, study_id
+        );
+
+        if(study_reportRepository.findById(user_favoriteKey) == null){
+            throw new IllegalStateException("신고하지 않은 게시물입니다.");
+        }
+
+        study_reportRepository.deleteById(user_favoriteKey);
+        study.setWarn_cnt(study.getWarn_cnt() >0 ? study.getWarn_cnt() -1 : 0 );
+        return studyRepository.save(study);
     }
 
 }
