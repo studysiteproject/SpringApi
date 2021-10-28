@@ -180,6 +180,7 @@ public class StudyController {
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long userId = CookieHandler.getUserIdFromCookies(request);
+
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
 
         return studyService.reportStudy(studyId, userId, studyReportDto);
@@ -194,6 +195,7 @@ public class StudyController {
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long userId = CookieHandler.getUserIdFromCookies(request);
+
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
 
         return studyService.reportundo(studyId, userId);

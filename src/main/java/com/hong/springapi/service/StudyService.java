@@ -19,6 +19,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -127,7 +128,7 @@ public class StudyService {
                 user_id, study_id
         );
 
-        if(study_reportRepository.findById(user_favoriteKey) != null){
+        if(study_reportRepository.findById(user_favoriteKey).isPresent()){
             throw new IllegalStateException("이미 신고한 게시글입니다.");
         }
 
@@ -153,7 +154,7 @@ public class StudyService {
                 user_id, study_id
         );
 
-        if(study_reportRepository.findById(user_favoriteKey) == null){
+        if(!study_reportRepository.findById(user_favoriteKey).isPresent()){
             throw new IllegalStateException("신고하지 않은 게시물입니다.");
         }
 
