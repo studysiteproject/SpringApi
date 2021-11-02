@@ -46,13 +46,24 @@ public class StudyController {
     @GetMapping("/study")
     public List<Study> getStudys(@ModelAttribute SearchRequestDto searchRequestDto){
 
-        if(searchRequestDto.getTech() == null ) {
+        if(searchRequestDto.getTech() == null && searchRequestDto.getCategory() == null){
             return studyRepository.findAllByTitleAndPlaceQuery(
-                    searchRequestDto.getTitle(), searchRequestDto.getPlace());
+                    searchRequestDto.getTitle(),
+                    searchRequestDto.getPlace()
+            );
+        }
+        else if(searchRequestDto.getTech() == null) {
+            return categorylistRepository.findDistinctAllByTitleAndPlaceAndCategoryQuery(
+                    searchRequestDto.getTitle(),
+                    searchRequestDto.getPlace(),
+                    searchRequestDto.getCategory()
+            );
         }
         else {
             return categorylistRepository.findDistinctAllByTitleAndPlaceAndTechQuery
-                    (searchRequestDto.getTitle(), searchRequestDto.getPlace(),
+                    (searchRequestDto.getTitle(),
+                            searchRequestDto.getPlace(),
+                            searchRequestDto.getCategory(),
                             searchRequestDto.getTech());
         }
     }
