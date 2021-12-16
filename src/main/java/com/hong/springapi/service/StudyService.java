@@ -63,9 +63,9 @@ public class StudyService {
     }
 
     @Transactional
-    public Study addFavorite(GetFavoriteDto getFavoriteDto){
-        Study study = studyRepository.findById(getFavoriteDto.getStudy_id()).get();
-        User user = userRepository.findById(getFavoriteDto.getUser_id()).get();
+    public Study addFavorite(Long studyId, Long userId){
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
         //user, study validity check
 
         user_favoriteRepository.save(User_favorite.builder()
@@ -77,7 +77,19 @@ public class StudyService {
         return study;
     }
 
+    @Transactional
+    public Study deleteFavorite(Long studyId, Long userId){
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        //user, study validity check
 
+        User_favoriteKey user_favoriteKey = new User_favoriteKey();
+        user_favoriteKey.setUser_id(userId);
+        user_favoriteKey.setStudy_id(studyId);
+        user_favoriteRepository.deleteById(user_favoriteKey);
+
+        return study;
+    }
 
 
     private final ApplicationlistRepository applicationlistRepository;

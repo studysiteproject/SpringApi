@@ -13,6 +13,7 @@ import com.hong.springapi.service.StudyService;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.annotations.OnDelete;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,16 +70,43 @@ public class StudyController {
     }
 
     //add favoritelist
-    @PostMapping("/study/favorite")
-    public Study addfavorite(@RequestBody GetFavoriteDto getFavoriteDto){
+    @PostMapping("/study/favorite/{study_id}")
+    public Study addfavorite(@PathVariable Long studyId, HttpServletRequest request){
         //추후 쿠키인증해서 user id 받아오기
-        return studyService.addFavorite(getFavoriteDto);
-    }
+        if (!CookieHandler.checkValidation(request)){
+            throw new UserValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        // 에러메세지 수정해야됨
+        Long userId = CookieHandler.getUserIdFromCookies(request);
 
+
+        return studyService.addFavorite(studyId, userId);
+    }
+    @DeleteMapping("/study/favorite/{study_id}")
+    public Study deletefavorite(@PathVariable Long studyId, HttpServletRequest request){
+        if (!CookieHandler.checkValidation(request)){
+            throw new UserValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        // 에러메세지 수정해야됨
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
+
+        return studyService.deleteFavorite(studyId, userId);
+
+    }
     @GetMapping("/study/favorite")
-    public List<Study> getFavorites(@RequestParam(value = "id") Long user_id){
+    public List<Study> getFavorites(HttpServletRequest request){
         //추후 쿠키 인증해서 직접 받아오기
-        return user_favoriteRepository.findDistinctAllByUser_idQuery(user_id);
+        if (!CookieHandler.checkValidation(request)){
+            throw new UserValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        // 에러메세지 수정해야됨
+        Long userId = CookieHandler.getUserIdFromCookies(request);
+
+        return user_favoriteRepository.findDistinctAllByUser_idQuery(userId);
     }
 
 
