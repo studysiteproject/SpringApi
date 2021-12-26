@@ -5,6 +5,8 @@ import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
+import com.hong.springapi.model.Technologylist;
+import com.hong.springapi.model.User_favoriteKey;
 import com.hong.springapi.repository.ApplicationlistRepository;
 import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
@@ -45,28 +47,64 @@ public class StudyController {
 
     // read all
     @GetMapping("/study")
-    public List<Study> getStudys(@ModelAttribute SearchRequestDto searchRequestDto){
+    public List<StudyReturnDto> getStudys(@ModelAttribute SearchRequestDto searchRequestDto, HttpServletRequest request){
+        List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
+        List<Study> tmp = new ArrayList<Study>();
 
         if(searchRequestDto.getTech() == null && searchRequestDto.getCategory() == null){
-            return studyRepository.findAllByTitleAndPlaceQuery(
+            tmp.addAll(studyRepository.findAllByTitleAndPlaceQuery(
                     searchRequestDto.getTitle(),
                     searchRequestDto.getPlace()
-            );
+            ));
         }
         else if(searchRequestDto.getTech() == null) {
-            return categorylistRepository.findDistinctAllByTitleAndPlaceAndCategoryQuery(
+            //검색 조건에 tech가 없을 시
+            tmp.addAll(categorylistRepository.findDistinctAllByTitleAndPlaceAndCategoryQuery(
                     searchRequestDto.getTitle(),
                     searchRequestDto.getPlace(),
-                    searchRequestDto.getCategory()
-            );
+                    searchRequestDto.getCategory()));
         }
         else {
-            return categorylistRepository.findDistinctAllByTitleAndPlaceAndTechQuery
+            //검색 조건에 tech가 있을 시
+            tmp.addAll(categorylistRepository.findDistinctAllByTitleAndPlaceAndTechQuery
                     (searchRequestDto.getTitle(),
                             searchRequestDto.getPlace(),
                             searchRequestDto.getCategory(),
-                            searchRequestDto.getTech());
+                            searchRequestDto.getTech()));
         }
+
+        for(int i=0; i<tmp.size(); i++){
+            Long clientId, studyId;
+            StudyReturnDto tmpres = new StudyReturnDto();
+            //study 복제
+            studyId = tmp.get(i).getId();
+            tmpres.setId(studyId);
+            tmpres.setTitle(tmp.get(i).getTitle());
+            tmpres.setMaxman(tmp.get(i).getMaxman());
+            tmpres.setNowman(tmp.get(i).getNowman());
+            tmpres.setWarn_cnt(tmp.get(i).getWarn_cnt());
+            tmpres.setPlace(tmp.get(i).getPlace());
+            tmpres.setCreate_date(tmp.get(i).getCreate_date());
+            //tech 불러오기
+            tmpres.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
+            //favorite 불러오기
+            Map<String,String> cookiemap = CookieHandler.getCookies(request);
+            if (!cookiemap.isEmpty()){
+                if (!CookieHandler.checkValidation(request)){
+                    throw new UserValidationException();
+                }
+                clientId = Long.valueOf(cookiemap.get("index"));
+                if(user_favoriteRepository.findByUser_favoriteKey(
+                        clientId, studyId).isPresent()){
+                    tmpres.setIsfavorite(true);
+                }
+            }
+            //user_info 불러오기
+            //push
+            res.add(tmpres);
+        }
+
+        return res;
     }
 
     //add favoritelist
