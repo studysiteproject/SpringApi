@@ -2,18 +2,14 @@ package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.*;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
+import com.hong.springapi.exception.exceptions.UserNotFoundException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
-import com.hong.springapi.model.Applicationlist;
-import com.hong.springapi.model.Study;
-import com.hong.springapi.model.Technologylist;
-import com.hong.springapi.model.User_favoriteKey;
-import com.hong.springapi.repository.ApplicationlistRepository;
-import com.hong.springapi.repository.CategorylistRepository;
-import com.hong.springapi.repository.StudyRepository;
-import com.hong.springapi.repository.User_favoriteRepository;
+import com.hong.springapi.model.*;
+import com.hong.springapi.repository.*;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.service.StudyService;
 import com.hong.springapi.util.CookieHandler;
+import jdk.internal.vm.compiler.word.UnsignedWord;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.annotations.OnDelete;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +34,8 @@ public class StudyController {
     private final ApplicationlistRepository applicationlistRepository;
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
+    private final UserRepository userRepository;
+    private final Profile_imageRepository profile_imageRepository
     // create
     @PostMapping("/study")
     public Study createStudy(@RequestBody StudyRequestDto requestDto){
@@ -85,6 +83,7 @@ public class StudyController {
             tmpres.setWarn_cnt(tmp.get(i).getWarn_cnt());
             tmpres.setPlace(tmp.get(i).getPlace());
             tmpres.setCreate_date(tmp.get(i).getCreate_date());
+            tmpres.setCategory(tmp.get(i).getCategory());
             //tech 불러오기
             tmpres.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
             //favorite 불러오기
@@ -99,7 +98,10 @@ public class StudyController {
                     tmpres.setIsfavorite(true);
                 }
             }
-            //user_info 불러오기
+            //user_info 불러오기 + 작성자 유효성 검증
+            User_info tmpui = profile_imageRepository.findByUserIdQuery(tmp.get(i).getUserId())
+                    .orElseThrow(UserNotFoundException::new);
+            tmpres.setUser_info(tmpui);
             //push
             res.add(tmpres);
         }

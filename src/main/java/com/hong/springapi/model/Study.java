@@ -31,6 +31,9 @@ public class Study extends Timestamped {
     private int nowman;
 
     @Column
+    private String category;
+
+    @Column
     private String description;
 
     @Column

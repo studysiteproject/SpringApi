@@ -15,8 +15,8 @@ import java.util.List;
 public class StudyReturnDto {
     Long id;
     String title;
-    //User_info user_info;
-    //String category;
+    User_info user_info;
+    String category;
     List<Technologylist> tech_info;
     String place;
     Integer maxman;
@@ -29,14 +29,14 @@ public class StudyReturnDto {
         tech_info = new ArrayList<Technologylist>();
        // user_info = new User_info();
     }
+    public void setUser_info(Long id, String user_name, String img_url){
+        user_info.id = id;
+        user_info.user_name = user_name;
+        user_info.img_url = img_url;
+    }
+
 }
-@Getter
-@Setter
-class User_info{
-    Long id;
-    String user_name;
-    String img_url;
-}
+
 //@Getter
 //@Setter
 //class Tech_info{
