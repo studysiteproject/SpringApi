@@ -2,8 +2,10 @@ package com.hong.springapi.service;
 
 import com.hong.springapi.dto.*;
 import com.hong.springapi.exception.exceptions.UserNotFoundException;
+import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
+import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,14 @@ import com.hong.springapi.repository.StudyRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
-public class StudyService {
+public class StudyServicelimpet {
     private final StudyRepository studyRepository;
     private final TechnologylistRepository technologylistRepository;
     private final CategorylistRepository categorylistRepository;
@@ -31,6 +35,7 @@ public class StudyService {
     private final User_favoriteRepository user_favoriteRepository;
     private final Study_reportRepository study_reportRepository;
     private final Profile_imageRepository profile_imageRepository;
+    private final ApplicationlistRepository applicationlistRepository;
 
     @Transactional
     public Study join(StudyRequestDto requestDto){
@@ -92,46 +97,6 @@ public class StudyService {
         return study;
     }
 
-
-    private final ApplicationlistRepository applicationlistRepository;
-
-    @Transactional
-    public Long update(Long studyId, StudyRequestDto requestDto) {
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        study.update(requestDto);
-        return studyId;
-    }
-
-    public Study createStudy(StudyRequestDto requestDto) {
-        return studyRepository.save(Study.builder()
-                // 장소가 공백이면 안됨
-                .title(requestDto.getTitle())
-                // 유저아이디는 수정 불가능
-                .userId(requestDto.getUser_id())
-                // maxman 2이상 이어야함
-                .maxman(requestDto.getMaxman())
-                // 설명이 공백이면 안됨
-                .description(requestDto.getDescription())
-                // 장소가 공백이면 안됨
-                .place(requestDto.getPlace())
-                .build()
-        );
-    }
-
-    @Transactional
-    public ResponseEntity<String> updateParticipationlist(Long studyId, List<ApplicationlistDto> requestDtolist) {
-        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudyId(studyId);
-
-        for (Applicationlist application : applicationlist){
-            for (ApplicationlistDto requestDto : requestDtolist){
-                if (requestDto.getUser_id().equals(application.getUserId()))
-                    application.update(requestDto.getPermission());
-            }
-        }
-        return new ResponseEntity<> ("success", HttpStatus.OK);
-    }
-
-
     @Transactional
     public Study reportStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
         //중복 확인 + 유효성 검증
@@ -176,4 +141,44 @@ public class StudyService {
         return studyRepository.save(study);
     }
 
+    public List<StudyReturnDto> getformal(List<Study> tmp, Long clientId){
+        //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 userid(사용 x면 0)
+        List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
+        for(int i=0; i<tmp.size(); i++){
+            Long studyId;
+            StudyReturnDto tmpres = new StudyReturnDto();
+            //study 복제
+            studyId = tmp.get(i).getId();
+            tmpres.setId(studyId);
+            tmpres.setTitle(tmp.get(i).getTitle());
+            tmpres.setMaxman(tmp.get(i).getMaxman());
+            tmpres.setNowman(tmp.get(i).getNowman());
+            tmpres.setWarn_cnt(tmp.get(i).getWarn_cnt());
+            tmpres.setPlace(tmp.get(i).getPlace());
+            tmpres.setCreate_date(tmp.get(i).getCreate_date());
+            tmpres.setCategory(tmp.get(i).getCategory());
+            //tech 불러오기
+            tmpres.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
+            //favorite 불러오기
+
+            if (clientId != 0L){
+                if(user_favoriteRepository.findByUser_favoriteKey(
+                        clientId, studyId).isPresent()){
+                    tmpres.setIsfavorite(true);
+                }
+            }
+            //user_info 불러오기 + 작성자 유효성 검증
+
+            Optional<User_info> tmpui =
+                    profile_imageRepository.findByUserIdQuery(tmp.get(i).getUserId());
+            //작성자가 존재하지 않으면 스킵
+            if(!tmpui.isPresent())continue;
+
+            tmpres.setUser_info(tmpui.get());
+            //push
+            res.add(tmpres);
+        }
+
+        return res;
+    }
 }
