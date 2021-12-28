@@ -10,5 +10,6 @@ import java.util.List;
 public class SearchRequestDto {
     private String title;
     private String place;
+    private String category;
     private List<String> tech;
 }

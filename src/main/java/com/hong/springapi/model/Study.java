@@ -6,6 +6,7 @@ import lombok.*;
 import javax.persistence.*;
 
 @Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -29,6 +30,9 @@ public class Study extends Timestamped {
     @Column
     @Builder.Default
     private int nowman = 1;
+
+    @Column
+    private String category;
 
     @Column
     private String description;

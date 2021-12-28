@@ -37,6 +37,9 @@ public class User {
     //어차피 여기서 유저 생성할 일 없을 것 같아서 timestamped랑 연동은 필요없을듯?
     @Column
     private LocalDateTime create_date;
+
+    @OneToOne(mappedBy = "user")
+    private Profile_image profile_image;
 //    @Column
 //    private String user_comment;
 }
