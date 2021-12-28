@@ -85,10 +85,10 @@ public class StudyControllerlimpet {
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
 
 
-        return studyServicelimpet.addFavorite(study_id, userId);
+        return studyServicelimpet.addFavorite(study_id, user_id);
     }
     @DeleteMapping("/study/favorite/{study_id}")
     public Study deletefavorite(@PathVariable Long study_id, HttpServletRequest request){
@@ -97,10 +97,10 @@ public class StudyControllerlimpet {
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
-        return studyServicelimpet.deleteFavorite(study_id, userId);
+        return studyServicelimpet.deleteFavorite(study_id, user_id);
 
     }
     @GetMapping("/study/favorite")
@@ -111,9 +111,9 @@ public class StudyControllerlimpet {
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
 
-        return user_favoriteRepository.findDistinctAllByUser_idQuery(userId);
+        return user_favoriteRepository.findDistinctAllByUser_idQuery(user_id);
     }
 
 
@@ -132,11 +132,11 @@ public class StudyControllerlimpet {
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
-        Long userId = CookieHandler.getUserIdFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
 
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
-        return studyServicelimpet.reportStudy(study_id, userId, studyReportDto);
+        return studyServicelimpet.reportStudy(study_id, user_id, studyReportDto);
     }
     //study 신고 취소
     @DeleteMapping("/study/report/{study_id}")
@@ -147,7 +147,7 @@ public class StudyControllerlimpet {
         }
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
-        Long user_id = CookieHandler.getUserIdFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
 
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
