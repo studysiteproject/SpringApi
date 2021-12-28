@@ -12,6 +12,6 @@ import java.util.Optional;
 public interface Profile_imageRepository extends JpaRepository<Profile_image, Long> {
     @Query("select new com.hong.springapi.dto.User_info(P.userId, P.user.user_name, P.img_url) " +
             "from profile_image P where P.userId = :user_id")
-    public Optional<User_info> findByUserIdQuery(
+    public Optional<User_info> findByUser_idQuery(
             @Param("user_id") Long userId);
 }

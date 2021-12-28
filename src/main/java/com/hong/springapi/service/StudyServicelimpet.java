@@ -42,7 +42,7 @@ public class StudyServicelimpet {
 
          Study res =studyRepository.save(Study.builder()
                 .title(requestDto.getTitle())
-                .userId(requestDto.getUser_id())
+                .user_id(requestDto.getUser_id())
                 .place(requestDto.getPlace())
                 .maxman(requestDto.getMaxman())
                 .warn_cnt(0)
@@ -69,9 +69,9 @@ public class StudyServicelimpet {
     }
 
     @Transactional
-    public Study addFavorite(Long studyId, Long userId){
+    public Study addFavorite(Long studyId, Long user_id){
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
         //user, study validity check
 
         user_favoriteRepository.save(User_favorite.builder()
@@ -84,13 +84,13 @@ public class StudyServicelimpet {
     }
 
     @Transactional
-    public Study deleteFavorite(Long studyId, Long userId){
+    public Study deleteFavorite(Long studyId, Long user_id){
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        User user = userRepository.findById(userId).orElseThrow(UserNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
         //user, study validity check
 
         User_favoriteKey user_favoriteKey = new User_favoriteKey();
-        user_favoriteKey.setUser_id(userId);
+        user_favoriteKey.setUser_id(user_id);
         user_favoriteKey.setStudy_id(studyId);
         user_favoriteRepository.deleteById(user_favoriteKey);
 
@@ -142,7 +142,7 @@ public class StudyServicelimpet {
     }
 
     public List<StudyReturnDto> getformal(List<Study> tmp, Long clientId){
-        //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 userid(사용 x면 0)
+        //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 user_id(사용 x면 0)
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
         for(int i=0; i<tmp.size(); i++){
             Long studyId;
@@ -170,7 +170,7 @@ public class StudyServicelimpet {
             //user_info 불러오기 + 작성자 유효성 검증
 
             Optional<User_info> tmpui =
-                    profile_imageRepository.findByUserIdQuery(tmp.get(i).getUserId());
+                    profile_imageRepository.findByUser_idQuery(tmp.get(i).getUser_id());
             //작성자가 존재하지 않으면 스킵
             if(!tmpui.isPresent())continue;
 
