@@ -12,7 +12,7 @@ import com.hong.springapi.repository.CategorylistRepository;
 import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.User_favoriteRepository;
 import com.hong.springapi.response.Response;
-import com.hong.springapi.service.StudyService;
+import com.hong.springapi.service.LacramService;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -28,7 +28,7 @@ import java.util.List;
 public class LacramController {
 
     private final StudyRepository studyRepository;
-    private final StudyService studyService;
+    private final LacramService studyService;
     private final ApplicationlistRepository applicationlistRepository;
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
