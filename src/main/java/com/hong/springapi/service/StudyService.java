@@ -83,15 +83,15 @@ public class StudyService {
     }
 
     @Transactional
-    public ResponseEntity<Response> updateStudy(Long studyId, StudyRequestDto requestDto, HttpServletRequest request) {
+    public ResponseEntity<Response> updateStudy(Long study_id, StudyRequestDto requestDto, HttpServletRequest request) {
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
-        Long userId = CookieHandler.getUser_idFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUser_id().equals(userId)){
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
             throw new UserValidationException();
         }
 
@@ -112,45 +112,57 @@ public class StudyService {
         return new ResponseEntity<>(new Response("success", "update success"), HttpStatus.OK);
     }
 
-    public ResponseEntity<Response> deleteStudy(Long studyId, HttpServletRequest request) {
+    public ResponseEntity<Response> deleteStudy(Long study_id, HttpServletRequest request) {
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
-        Long userId = CookieHandler.getUser_idFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUser_id().equals(userId)){
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
             throw new UserValidationException();
         }
-        studyRepository.deleteById(studyId);
+        studyRepository.deleteById(study_id);
 
         return new ResponseEntity<>(new Response("success", "study delete success"), HttpStatus.OK);
     }
 
     @Transactional
-    public ResponseEntity<Response> updateParticipationlist(Long studyId, List<ApplicationlistDto> requestDtolist, HttpServletRequest request) {
+    public ResponseEntity<Response> updateParticipationlist(Long study_id, List<ApplicationlistDto> requestDtolist, HttpServletRequest request) {
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
-        Long userId = CookieHandler.getUser_idFromCookies(request);
-        Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUser_id().equals(userId)){
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
             throw new StudyNotFoundException();
         }
 
-        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(studyId).orElseThrow(StudyNotFoundException::new);
+        List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
         for (Applicationlist application : applicationlist){
             for (ApplicationlistDto requestDto : requestDtolist){
-                if (requestDto.getUser_id().equals(application.getUser_id()))
+                if (requestDto.getUser_id().equals(application.getUser_id())){
+                    // 신청후 허용이 되었을 경우 nowman++
+                    if (!application.getPermission() && requestDto.getPermission())
+                        updateNowman(study_id, 1);
+                    // 스터디 유저를 추방할 경우 nowman--
+                    if (application.getPermission() && !requestDto.getPermission())
+                        updateNowman(study_id, -1);
                     application.update(requestDto.getPermission());
+                }
             }
         }
         return new ResponseEntity<> (new Response("success", "update success"), HttpStatus.OK);
     }
 
+    @Transactional
+    public void updateNowman(Long id, int val){
+        Study study = studyRepository.findById(id).orElseThrow(StudyNotFoundException::new);
+        study.updateNowman(val);
+    }
 
 }

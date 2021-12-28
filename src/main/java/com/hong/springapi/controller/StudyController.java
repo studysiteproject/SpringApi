@@ -109,18 +109,17 @@ public class StudyController {
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
-        Long userId = CookieHandler.getUser_idFromCookies(request);
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUser_id().equals(userId)){
+        if (!study.getUser_id().equals(user_id)){
             throw new StudyNotFoundException();
         }
-
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
         List<ApplicationlistDto> myApplicationlist = new ArrayList<>();
         for (Applicationlist application : applicationlist){
             // 본인은 제외하고 보여줌
-            if (application.getUser_id().equals(userId)) continue;
+            if (application.getUser_id().equals(user_id)) continue;
 
             ApplicationlistDto myApplication = new ApplicationlistDto();
             myApplication.setUser_id(application.getUser_id());
@@ -145,12 +144,16 @@ public class StudyController {
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
-       Long userId = CookieHandler.getUser_idFromCookies(request);
-       List<Applicationlist> applicationlist = applicationlistRepository.findAllByUser_id(userId).orElseThrow(StudyNotFoundException::new);
+       Long user_id = CookieHandler.getUser_idFromCookies(request);
+       List<Applicationlist> applicationlist = applicationlistRepository.findAllByUser_id(user_id).orElseThrow(StudyNotFoundException::new);
 
        List<Study> myApplicationlist = new ArrayList<>();
        for (Applicationlist application : applicationlist){
-           myApplicationlist.add(studyRepository.findById(application.getStudy_id()).orElseThrow(StudyNotFoundException::new));
+           Study study = studyRepository.findById(application.getStudy_id()).orElseThrow(StudyNotFoundException::new);
+           // 본인이 생성한 스터디는 제외하고 보여줌
+           if (study.getUser_id().equals(user_id)) continue;
+
+           myApplicationlist.add(study);
        }
        return myApplicationlist;
     }
@@ -169,6 +172,9 @@ public class StudyController {
         for (Applicationlist myApplication : myApplicationlist){
             if (myApplication.getStudy_id().equals(study_id)){
                 applicationlistRepository.delete(myApplication);
+                // 탈퇴시 nowman--
+                studyService.updateNowman(study_id, -1);
+
                 return new ResponseEntity<> (new Response("success", "delete success"), HttpStatus.OK);
             }
         }
