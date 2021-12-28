@@ -35,7 +35,7 @@ public class StudyController {
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
     private final UserRepository userRepository;
-    private final Profile_imageRepository profile_imageRepository
+    private final Profile_imageRepository profile_imageRepository;
     // create
     @PostMapping("/study")
     public Study createStudy(@RequestBody StudyRequestDto requestDto){
@@ -99,9 +99,13 @@ public class StudyController {
                 }
             }
             //user_info 불러오기 + 작성자 유효성 검증
-            User_info tmpui = profile_imageRepository.findByUserIdQuery(tmp.get(i).getUserId())
-                    .orElseThrow(UserNotFoundException::new);
-            tmpres.setUser_info(tmpui);
+
+            Optional<User_info> tmpui =
+                    profile_imageRepository.findByUserIdQuery(tmp.get(i).getUserId());
+            //작성자가 존재하지 않으면 스킵
+            if(!tmpui.isPresent())continue;
+
+            tmpres.setUser_info(tmpui.get());
             //push
             res.add(tmpres);
         }

@@ -30,6 +30,7 @@ public class StudyService {
     private final UserRepository userRepository;
     private final User_favoriteRepository user_favoriteRepository;
     private final Study_reportRepository study_reportRepository;
+    private final Profile_imageRepository profile_imageRepository;
 
     @Transactional
     public Study join(StudyRequestDto requestDto){

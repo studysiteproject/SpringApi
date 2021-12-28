@@ -2,10 +2,8 @@ package com.hong.springapi.model;
 
 import lombok.*;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
+import java.io.Serializable;
 
 @Getter
 @Setter
@@ -13,11 +11,16 @@ import javax.persistence.ManyToOne;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity(name = "profile_image")
-public class Profile_image {
-    @Id
-    @ManyToOne
-    @JoinColumn(name="user_id")
-    private User userId;
+public class Profile_image{
 
-    String img_url;
+    @Id
+    private Long userId;
+
+    @MapsId
+    @OneToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
+    @Column
+    private String img_url;
 }
