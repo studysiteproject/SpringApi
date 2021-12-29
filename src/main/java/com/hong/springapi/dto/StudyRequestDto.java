@@ -9,7 +9,6 @@ import java.util.List;
 @Setter
 public class StudyRequestDto {
     private String title;
-    private Long user_id;
     private  int maxman;
     private String description;
     private String place;

@@ -2,12 +2,15 @@ package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.*;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
+import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
+import com.hong.springapi.response.Response;
 import com.hong.springapi.service.StudyServicelimpet;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -26,14 +29,21 @@ public class StudyControllerlimpet {
     private final User_favoriteRepository user_favoriteRepository;
     private final UserRepository userRepository;
     private final Profile_imageRepository profile_imageRepository;
-    // create
-    @PostMapping("/study")
-    public Study createStudy(@RequestBody StudyRequestDto requestDto){
 
-       return studyServicelimpet.join(requestDto);
+    // create study
+    @PostMapping("/study")
+    public ResponseEntity<Response> createStudy(@RequestBody StudyRequestDto requestDto, HttpServletRequest request){
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        // 에러메세지 수정해야됨
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+
+        return studyServicelimpet.join(requestDto, user_id);
     }
 
-    // read all
+    // read all (main page)
     @GetMapping("/study")
     public List<StudyReturnDto> getStudys(@ModelAttribute SearchRequestDto searchRequestDto, HttpServletRequest request){
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
@@ -78,7 +88,7 @@ public class StudyControllerlimpet {
 
     //add favoritelist
     @PostMapping("/study/favorite/{study_id}")
-    public Study addfavorite(@PathVariable Long study_id, HttpServletRequest request){
+    public ResponseEntity<Response> addfavorite(@PathVariable Long study_id, HttpServletRequest request){
         //추후 쿠키인증해서 user id 받아오기
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
@@ -91,7 +101,7 @@ public class StudyControllerlimpet {
         return studyServicelimpet.addFavorite(study_id, user_id);
     }
     @DeleteMapping("/study/favorite/{study_id}")
-    public Study deletefavorite(@PathVariable Long study_id, HttpServletRequest request){
+    public ResponseEntity<Response> deletefavorite(@PathVariable Long study_id, HttpServletRequest request){
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
         }
@@ -104,7 +114,7 @@ public class StudyControllerlimpet {
 
     }
     @GetMapping("/study/favorite")
-    public List<Study> getFavorites(HttpServletRequest request){
+    public List<StudyReturnDto> getFavorites(HttpServletRequest request){
         //추후 쿠키 인증해서 직접 받아오기
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
@@ -112,8 +122,12 @@ public class StudyControllerlimpet {
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long user_id = CookieHandler.getUser_idFromCookies(request);
+        List<Study> tmp =  new ArrayList<>();
 
-        return user_favoriteRepository.findDistinctAllByUser_idQuery(user_id);
+        tmp.addAll(user_favoriteRepository.findDistinctAllByUser_idQuery(user_id));
+
+        return studyServicelimpet.getformal(tmp,user_id);
+
     }
 
 
@@ -125,7 +139,7 @@ public class StudyControllerlimpet {
 
     //study 신고
     @PostMapping("/study/report/{study_id}")
-    public Study reportStudy(@PathVariable Long study_id, @RequestBody StudyReportDto studyReportDto, HttpServletRequest request){
+    public ResponseEntity<Response> reportStudy(@PathVariable Long study_id, @RequestBody StudyReportDto studyReportDto, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
@@ -137,10 +151,11 @@ public class StudyControllerlimpet {
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
         return studyServicelimpet.reportStudy(study_id, user_id, studyReportDto);
+
     }
     //study 신고 취소
     @DeleteMapping("/study/report/{study_id}")
-    public Study reportundo(@PathVariable Long study_id, HttpServletRequest request){
+    public ResponseEntity<Response> reportundo(@PathVariable Long study_id, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
@@ -149,7 +164,7 @@ public class StudyControllerlimpet {
         // 에러메세지 수정해야됨
         Long user_id = CookieHandler.getUser_idFromCookies(request);
 
-        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        //Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
         return studyServicelimpet.reportundo(study_id, user_id);
     }

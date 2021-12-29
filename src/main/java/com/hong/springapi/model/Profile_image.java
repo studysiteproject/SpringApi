@@ -17,7 +17,7 @@ public class Profile_image{
     private Long userId;
 
     @MapsId
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
