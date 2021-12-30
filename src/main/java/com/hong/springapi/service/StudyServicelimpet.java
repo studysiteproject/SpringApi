@@ -41,7 +41,7 @@ public class StudyServicelimpet {
 
     @Transactional
     public ResponseEntity<Response> join(StudyRequestDto requestDto, Long user_id){
-
+        //tech가 DB에 없는 경우 예외처리 필요
          Study res =studyRepository.save(Study.builder()
                 .title(requestDto.getTitle())
                 .user_id(user_id)
@@ -62,10 +62,12 @@ public class StudyServicelimpet {
 
     @Transactional
     public void addCategory(Study study, List<String> tech){
+
         for(int i=0; i<tech.size(); i++){
             categorylistRepository.save(Categorylist.builder()
                     .study_id(study)
-                    .tech_id(technologylistRepository.findByName(tech.get(i)).get())
+                    .tech_id(technologylistRepository.findByName(tech.get(i))
+                            .orElseThrow(BadRequestException::new))
                     .build()
             );
         }
@@ -79,7 +81,7 @@ public class StudyServicelimpet {
 
         //중복 검사
         if(user_favoriteRepository.findByUser_favoriteKey(user.getId(), study.getId()).isPresent()){
-            throw new RuntimeException("이미 즐겨찾기 한 게시글입니다.");
+            throw new BadRequestException("이미 즐겨찾기한 게시글입니다.");
         }
 
         user_favoriteRepository.save(User_favorite.builder()
@@ -119,7 +121,7 @@ public class StudyServicelimpet {
         );
 
         if(study_reportRepository.findById(user_favoriteKey).isPresent()){
-            throw new IllegalStateException("이미 신고한 게시글입니다.");
+            throw new BadRequestException("이미 신고한 게시글입니다.");
         }
 
         study_reportRepository.save(Study_report.builder()
@@ -146,7 +148,7 @@ public class StudyServicelimpet {
         );
 
         if(!study_reportRepository.findById(user_favoriteKey).isPresent()){
-            throw new IllegalStateException("신고하지 않은 게시물입니다.");
+            throw new BadRequestException("신고하지 않은 게시물입니다.");
         }
 
         study_reportRepository.deleteById(user_favoriteKey);

@@ -31,7 +31,7 @@ public class StudyControllerlimpet {
     private final Profile_imageRepository profile_imageRepository;
 
     // create study
-    @PostMapping("/study")
+    @PostMapping("/study/create")
     public ResponseEntity<Response> createStudy(@RequestBody StudyRequestDto requestDto, HttpServletRequest request){
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
