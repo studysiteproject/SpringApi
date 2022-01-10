@@ -75,9 +75,9 @@ public class StudyControllerlimpet {
 
         Map<String,String> cookiemap = CookieHandler.getCookies(request);
         if (!cookiemap.isEmpty()){
-            if (!CookieHandler.checkValidation(request)){
-                throw new UserValidationException();
-            }
+//            if (!CookieHandler.checkValidation(request)){
+//                throw new UserValidationException();
+//            }
             clientId = Long.valueOf(cookiemap.get("index"));
         }
 
@@ -87,7 +87,7 @@ public class StudyControllerlimpet {
     }
 
     //add favoritelist
-    @PostMapping("/study/favorite/{study_id}")
+    @GetMapping("/study/favorite/{study_id}")
     public ResponseEntity<Response> addfavorite(@PathVariable Long study_id, HttpServletRequest request){
         //추후 쿠키인증해서 user id 받아오기
         if (!CookieHandler.checkValidation(request)){
@@ -168,10 +168,20 @@ public class StudyControllerlimpet {
 
         return studyServicelimpet.reportundo(study_id, user_id);
     }
-    // 신청한 스터디 관리
-//    @GetMapping("/study/applicationlist")
-//    public List<Applicationlist> getApplicationlist(HttpServletRequest request){
-//
-//    }
+    // 스터디 참가 신청
+    @PostMapping("/study/recruit/{study_id}")
+    public ResponseEntity<Response> recruitStudy(@PathVariable Long study_id, @RequestBody StudyReportDto studyReportDto, HttpServletRequest request){
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new UserValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        // 에러메세지 수정해야됨
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+
+        return studyServicelimpet.recruitStudy(study_id, user_id,studyReportDto);
+    }
 
 }

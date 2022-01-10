@@ -158,6 +158,30 @@ public class StudyServicelimpet {
         return new ResponseEntity<Response>(new Response("success", "report undo success"), HttpStatus.OK);
     }
 
+    @Transactional
+    public ResponseEntity<Response> recruitStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
+        //중복 확인 + 유효성 검증
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
+//        ApplicationlistKey applicationlistKey = new ApplicationlistKey(
+//                user_id, study_id
+//        );
+
+//        if(study_reportRepository.findById(user_favoriteKey).isPresent()){
+//            throw new BadRequestException("이미 .");
+//        }
+
+        applicationlistRepository.save(Applicationlist.builder()
+                .study_id(study_id)
+                .user_id(user_id)
+                .description(studyReportDto.getDescription())
+                .permission(false)
+                .build()
+        );
+
+        return new ResponseEntity<Response>(new Response("success", "application success"), HttpStatus.OK);
+    }
+
     public List<StudyReturnDto> getformal(List<Study> tmp, Long clientId){
         //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 user_id(사용 x면 0)
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
