@@ -144,7 +144,7 @@ public class StudyServicelimpet {
     public List<StudyReturnDto> getformal(List<Study> tmp, Long clientId){
         //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 user_id(사용 x면 0)
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
-        for(int i=0; i<tmp.size(); i++){
+        for(int i=0; i<tmp.size(); i++) {
             Long studyId;
             StudyReturnDto tmpres = new StudyReturnDto();
             //study 복제
@@ -161,9 +161,9 @@ public class StudyServicelimpet {
             tmpres.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
             //favorite 불러오기
 
-            if (clientId != 0L){
-                if(user_favoriteRepository.findByUser_favoriteKey(
-                        clientId, studyId).isPresent()){
+            if (clientId != 0L) {
+                if (user_favoriteRepository.findByUser_favoriteKey(
+                        clientId, studyId).isPresent()) {
                     tmpres.setIsfavorite(true);
                 }
             }
@@ -172,7 +172,7 @@ public class StudyServicelimpet {
             Optional<User_info> tmpui =
                     profile_imageRepository.findByUser_idQuery(tmp.get(i).getUser_id());
             //작성자가 존재하지 않으면 스킵
-            if(!tmpui.isPresent())continue;
+            if (!tmpui.isPresent()) continue;
 
             tmpres.setUser_info(tmpui.get());
             //push

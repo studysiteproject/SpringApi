@@ -2,6 +2,7 @@ package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.ApplicationlistDto;
 import com.hong.springapi.dto.StudyRequestDto;
+import com.hong.springapi.dto.StudyReturnDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
@@ -13,6 +14,7 @@ import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.User_favoriteRepository;
 import com.hong.springapi.response.Response;
 import com.hong.springapi.service.LacramService;
+import com.hong.springapi.service.StudyServicelimpet;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,12 +25,14 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
+@CrossOrigin(origins="http://localhost:3000")
 @RequiredArgsConstructor
 @RestController
 public class LacramController {
 
     private final StudyRepository studyRepository;
     private final LacramService studyService;
+    private final StudyServicelimpet studyServicelimpet;
     private final ApplicationlistRepository applicationlistRepository;
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
@@ -49,14 +53,14 @@ public class LacramController {
 
     // 생성한 스터디 전체 불러오기
     @GetMapping("/study/created")
-    public List<Study> getCreatedStudy(HttpServletRequest request){
+    public List<StudyReturnDto> getCreatedStudy(HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         Long user_id = CookieHandler.getUser_idFromCookies(request);
-
-        return studyRepository.findAllByUser_id(user_id).orElseThrow(UserValidationException::new);
+        List<Study> studyList = studyRepository.findAllByUser_id(user_id).orElseThrow(UserValidationException::new);
+        return studyServicelimpet.getformal(studyList, user_id);
     }
 
     // 스터디 참여현황 조회
@@ -97,7 +101,7 @@ public class LacramController {
 
     // 신청한 스터디 전체 조회
     @GetMapping("/study/applicationlist")
-    public List<Study> getApplicationlist(HttpServletRequest request){
+    public List<StudyReturnDto> getApplicationlist(HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
@@ -113,7 +117,7 @@ public class LacramController {
 
             myApplicationlist.add(study);
         }
-        return myApplicationlist;
+        return studyServicelimpet.getformal(myApplicationlist, user_id);
     }
 
     // 신청한 스터디 탈퇴

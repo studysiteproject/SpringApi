@@ -18,7 +18,7 @@ public interface User_favoriteRepository extends JpaRepository<User_favorite, Us
             @Param("user_id") Long user_id
     );
 
-    @Query("select F.study_id from user_favorite F where F.user_id.id = :user_id and F.study_id = :study_id ")
+    @Query("select F.study_id from user_favorite F where F.user_id.id = :user_id and F.study_id.id = :study_id ")
     public Optional<User_favorite> findByUser_favoriteKey(
             @Param("user_id")   Long user_id,
             @Param("study_id")  Long study_id);
