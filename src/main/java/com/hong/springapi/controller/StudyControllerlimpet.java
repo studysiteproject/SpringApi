@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-@CrossOrigin(origins="*")
+@CrossOrigin(origins="http://localhost:3000, http://localhost:8080")
 @RequiredArgsConstructor
 @RestController
 public class StudyControllerlimpet {

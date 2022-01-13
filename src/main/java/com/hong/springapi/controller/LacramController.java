@@ -2,6 +2,7 @@ package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.ApplicationlistDto;
 import com.hong.springapi.dto.StudyRequestDto;
+import com.hong.springapi.dto.StudyReturnDto;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
@@ -13,6 +14,7 @@ import com.hong.springapi.repository.StudyRepository;
 import com.hong.springapi.repository.User_favoriteRepository;
 import com.hong.springapi.response.Response;
 import com.hong.springapi.service.LacramService;
+import com.hong.springapi.service.StudyServicelimpet;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -23,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins="http://localhost:3000")
+@CrossOrigin(origins="http://localhost:3000, http://localhost:8080")
 @RequiredArgsConstructor
 @RestController
 public class LacramController {
