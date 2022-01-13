@@ -222,4 +222,36 @@ public class StudyServicelimpet {
 
         return res;
     }
+
+    public StudyDetailDto getformal(Study tmp, Long clientId){
+        //tmp는 스터디 목록, clientId는 쿠키로부터 추출한 user_id(사용 x면 0)
+        Long studyId;
+        StudyDetailDto study = new StudyDetailDto();
+        //study 복제
+        studyId = tmp.getId();
+        study.setId(studyId);
+        study.setTitle(tmp.getTitle());
+        study.setMaxman(tmp.getMaxman());
+        study.setNowman(tmp.getNowman());
+        study.setWarn_cnt(tmp.getWarn_cnt());
+        study.setPlace(tmp.getPlace());
+        study.setCreate_date(tmp.getCreate_date());
+        study.setCategory(tmp.getCategory());
+        study.setDescription(tmp.getDescription());
+        //tech 불러오기
+        study.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
+        //favorite 불러오기
+
+        if (clientId != 0L) {
+            if (user_favoriteRepository.findByUser_favoriteKey(clientId, studyId).isPresent()) {
+                study.setIsfavorite(true);
+            }
+        }
+        //user_info 불러오기 + 작성자 유효성 검증
+        Optional<User_info> tmpui = profile_imageRepository.findByUser_idQuery(tmp.getUser_id());
+
+        study.setUser_info(tmpui.get());
+
+        return study;
+    }
 }

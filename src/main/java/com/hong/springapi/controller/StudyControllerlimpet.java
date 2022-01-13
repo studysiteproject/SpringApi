@@ -134,8 +134,16 @@ public class StudyControllerlimpet {
 
     // read one
     @GetMapping("/study/{study_id}")
-    public Study getStudy(@PathVariable Long study_id){
-        return studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+    public StudyDetailDto getStudy(@PathVariable Long study_id, HttpServletRequest request){
+        Long clientId = 0L;
+
+        Map<String,String> cookiemap = CookieHandler.getCookies(request);
+        if (!cookiemap.isEmpty()){
+            clientId = Long.valueOf(cookiemap.get("index"));
+        }
+
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        return studyServicelimpet.getformal(study, clientId);
     }
 
     //study 신고
