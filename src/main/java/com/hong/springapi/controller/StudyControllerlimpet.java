@@ -120,8 +120,11 @@ public class StudyControllerlimpet {
 
     // read one
     @GetMapping("/study/{study_id}")
-    public Study getStudy(@PathVariable Long study_id){
-        return studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+    public StudyReturnDto getStudy(@PathVariable Long study_id){
+        List<Study> study = new ArrayList<>();
+        study.add(studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new));
+        List<StudyReturnDto> studyReturn = studyServicelimpet.getformal(study,0L);
+        return studyReturn.get(0);
     }
 
     //study 신고
