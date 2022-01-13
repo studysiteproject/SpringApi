@@ -30,7 +30,7 @@ public class StudyReturnDto {
        // user_info = new User_info();
     }
     public void setUser_info(Long id, String user_name, String img_url){
-        user_info.userId = id;
+        user_info.id = id;
         user_info.user_name = user_name;
         user_info.img_url = img_url;
     }
