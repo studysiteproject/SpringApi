@@ -101,6 +101,7 @@ public class StudyControllerlimpet {
 
         return studyServicelimpet.addFavorite(study_id, user_id);
     }
+    //즐겨찾기 취소
     @DeleteMapping("/study/favorite/{study_id}")
     public ResponseEntity<Response> deletefavorite(@PathVariable Long study_id, HttpServletRequest request){
         if (!CookieHandler.checkValidation(request)){
@@ -114,6 +115,8 @@ public class StudyControllerlimpet {
         return studyServicelimpet.deleteFavorite(study_id, user_id);
 
     }
+
+    //즐겨찾기 목록
     @GetMapping("/study/favorite")
     public List<StudyReturnDto> getFavorites(HttpServletRequest request){
         //추후 쿠키 인증해서 직접 받아오기
