@@ -15,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.util.HashMap;
 import java.util.Map;
 
-@CrossOrigin(origins="http://localhost:3000, http://localhost:8080")
 @RequiredArgsConstructor
 @RestController
 public class CookieController {

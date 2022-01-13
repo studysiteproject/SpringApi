@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
-@CrossOrigin(origins="http://localhost:3000, http://localhost:8080")
 @RequiredArgsConstructor
 @RestController
 public class LacramController {
