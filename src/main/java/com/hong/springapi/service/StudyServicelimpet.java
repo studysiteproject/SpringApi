@@ -52,9 +52,11 @@ public class StudyServicelimpet {
                 .description(requestDto.getDescription())
                 .build()
         );
-         if(requestDto.getTech()!=null) {
-             addCategory(studyRepository.findById(res.getId()).orElseThrow(StudyNotFoundException :: new), requestDto.getTech());
-         }
+
+
+        if(requestDto.getTech()!=null) {
+            addCategory(studyRepository.findById(res.getId()).orElseThrow(StudyNotFoundException :: new), requestDto.getTech());
+        }
 
         return new ResponseEntity<Response>(new Response("success", "create success"), HttpStatus.OK);
 
@@ -163,13 +165,11 @@ public class StudyServicelimpet {
         //중복 확인 + 유효성 검증
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
-//        ApplicationlistKey applicationlistKey = new ApplicationlistKey(
-//                user_id, study_id
-//        );
 
-//        if(study_reportRepository.findById(user_favoriteKey).isPresent()){
-//            throw new BadRequestException("이미 .");
-//        }
+        //작성자가 자신의 스터디 참가하는 경우
+        if(study.getUser_id() == user.getId()){
+            throw new UserValidationException();
+        }
 
         applicationlistRepository.save(Applicationlist.builder()
                 .study_id(study_id)
