@@ -38,8 +38,8 @@ public class User {
     @Column
     private LocalDateTime create_date;
 
-    @OneToOne(mappedBy = "user")
-    private Profile_image profile_image;
+//    @OneToOne(mappedBy = "user")
+//    private Profile_image profile_image;
 //    @Column
 //    private String user_comment;
 }

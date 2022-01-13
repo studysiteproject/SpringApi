@@ -1,10 +1,12 @@
 package com.hong.springapi.service;
 
 import com.hong.springapi.dto.*;
+import com.hong.springapi.exception.exceptions.BadRequestException;
 import com.hong.springapi.exception.exceptions.UserNotFoundException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
+import com.hong.springapi.response.Response;
 import com.hong.springapi.util.CookieHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -38,11 +40,11 @@ public class StudyServicelimpet {
     private final ApplicationlistRepository applicationlistRepository;
 
     @Transactional
-    public Study join(StudyRequestDto requestDto){
-
+    public ResponseEntity<Response> join(StudyRequestDto requestDto, Long user_id){
+        //tech가 DB에 없는 경우 예외처리 필요
          Study res =studyRepository.save(Study.builder()
                 .title(requestDto.getTitle())
-                .user_id(requestDto.getUser_id())
+                .user_id(user_id)
                 .place(requestDto.getPlace())
                 .maxman(requestDto.getMaxman())
                 .warn_cnt(0)
@@ -51,28 +53,36 @@ public class StudyServicelimpet {
                 .build()
         );
          if(requestDto.getTech()!=null) {
-             addCategory(studyRepository.findById(res.getId()).get(), requestDto.getTech());
+             addCategory(studyRepository.findById(res.getId()).orElseThrow(StudyNotFoundException :: new), requestDto.getTech());
          }
-        return res;
+
+        return new ResponseEntity<Response>(new Response("success", "create success"), HttpStatus.OK);
 
     }
 
     @Transactional
     public void addCategory(Study study, List<String> tech){
+
         for(int i=0; i<tech.size(); i++){
             categorylistRepository.save(Categorylist.builder()
                     .study_id(study)
-                    .tech_id(technologylistRepository.findByName(tech.get(i)).get())
+                    .tech_id(technologylistRepository.findByName(tech.get(i))
+                            .orElseThrow(BadRequestException::new))
                     .build()
             );
         }
     }
 
     @Transactional
-    public Study addFavorite(Long studyId, Long user_id){
+    public ResponseEntity<Response> addFavorite(Long studyId, Long user_id){
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
         //user, study validity check
+
+        //중복 검사
+        if(user_favoriteRepository.findByUser_favoriteKey(user.getId(), study.getId()).isPresent()){
+            throw new BadRequestException("이미 즐겨찾기한 게시글입니다.");
+        }
 
         user_favoriteRepository.save(User_favorite.builder()
                 .study_id(study)
@@ -80,25 +90,29 @@ public class StudyServicelimpet {
                 .build()
         );
 
-        return study;
+        return new ResponseEntity<Response>(new Response("success", "add favorite success"), HttpStatus.OK);
     }
 
     @Transactional
-    public Study deleteFavorite(Long studyId, Long user_id){
+    public ResponseEntity<Response> deleteFavorite(Long studyId, Long user_id){
         Study study = studyRepository.findById(studyId).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
         //user, study validity check
 
+        if(!user_favoriteRepository.findByUser_favoriteKey(user_id, studyId).isPresent()){
+            //즐겨찾기 안 되어 있는 경우
+            throw new BadRequestException();
+        }
         User_favoriteKey user_favoriteKey = new User_favoriteKey();
         user_favoriteKey.setUser_id(user_id);
         user_favoriteKey.setStudy_id(studyId);
         user_favoriteRepository.deleteById(user_favoriteKey);
 
-        return study;
+        return new ResponseEntity<Response>(new Response("success", "delete success"), HttpStatus.OK);
     }
 
     @Transactional
-    public Study reportStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
+    public ResponseEntity<Response> reportStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
         //중복 확인 + 유효성 검증
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
@@ -107,7 +121,7 @@ public class StudyServicelimpet {
         );
 
         if(study_reportRepository.findById(user_favoriteKey).isPresent()){
-            throw new IllegalStateException("이미 신고한 게시글입니다.");
+            throw new BadRequestException("이미 신고한 게시글입니다.");
         }
 
         study_reportRepository.save(Study_report.builder()
@@ -118,13 +132,14 @@ public class StudyServicelimpet {
         );
         study.setWarn_cnt(study.getWarn_cnt() + 1);
 
-        return studyRepository.save(study);
+        studyRepository.save(study);
 
+        return new ResponseEntity<Response>(new Response("success", "report success"), HttpStatus.OK);
     }
 
 
     @Transactional
-    public Study reportundo(Long study_id, Long user_id){
+    public ResponseEntity<Response> reportundo(Long study_id, Long user_id){
         //해당 신고내역이 있는 지 확인해야함
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
@@ -133,12 +148,38 @@ public class StudyServicelimpet {
         );
 
         if(!study_reportRepository.findById(user_favoriteKey).isPresent()){
-            throw new IllegalStateException("신고하지 않은 게시물입니다.");
+            throw new BadRequestException("신고하지 않은 게시물입니다.");
         }
 
         study_reportRepository.deleteById(user_favoriteKey);
         study.setWarn_cnt(study.getWarn_cnt() >0 ? study.getWarn_cnt() -1 : 0 );
-        return studyRepository.save(study);
+        studyRepository.save(study);
+
+        return new ResponseEntity<Response>(new Response("success", "report undo success"), HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<Response> recruitStudy(Long study_id, Long user_id, StudyReportDto studyReportDto) {
+        //중복 확인 + 유효성 검증
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
+//        ApplicationlistKey applicationlistKey = new ApplicationlistKey(
+//                user_id, study_id
+//        );
+
+//        if(study_reportRepository.findById(user_favoriteKey).isPresent()){
+//            throw new BadRequestException("이미 .");
+//        }
+
+        applicationlistRepository.save(Applicationlist.builder()
+                .study_id(study_id)
+                .user_id(user_id)
+                .description(studyReportDto.getDescription())
+                .permission(false)
+                .build()
+        );
+
+        return new ResponseEntity<Response>(new Response("success", "application success"), HttpStatus.OK);
     }
 
     public List<StudyReturnDto> getformal(List<Study> tmp, Long clientId){
