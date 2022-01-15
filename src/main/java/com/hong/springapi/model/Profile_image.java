@@ -14,7 +14,8 @@ import java.io.Serializable;
 public class Profile_image{
 
     @Id
-    private Long userId;
+    @Column(name = "user_id")
+    private Long id;
 
     @MapsId
     @ManyToOne
