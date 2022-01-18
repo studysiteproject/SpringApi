@@ -15,4 +15,7 @@ public interface ApplicationlistRepository extends JpaRepository<Applicationlist
 
     @Query("select S from applicationlist S where S.user_id = :user_id")
     Optional<List<Applicationlist>> findAllByUser_id(Long user_id);
+
+    @Query("select S from applicationlist S where S.user_id = :user_id and S.study_id = :study_id")
+    Optional<Applicationlist> findByUser_idAndStudy_id(Long user_id, Long study_id);
 }

@@ -186,11 +186,8 @@ public class StudyControllerlimpet {
         if (!CookieHandler.checkValidation(request)){
             throw new UserValidationException();
         }
-        // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long user_id = CookieHandler.getUser_idFromCookies(request);
-
-        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
         return studyServicelimpet.recruitStudy(study_id, user_id,studyReportDto);
     }

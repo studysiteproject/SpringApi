@@ -1,9 +1,7 @@
 package com.hong.springapi.service;
 
 import com.hong.springapi.dto.*;
-import com.hong.springapi.exception.exceptions.BadRequestException;
-import com.hong.springapi.exception.exceptions.UserNotFoundException;
-import com.hong.springapi.exception.exceptions.UserValidationException;
+import com.hong.springapi.exception.exceptions.*;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
 import com.hong.springapi.response.Response;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 import javax.transaction.Transactional;
 
 import com.hong.springapi.dto.StudyRequestDto;
-import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.ApplicationlistRepository;
@@ -169,6 +166,11 @@ public class StudyServicelimpet {
         //작성자가 자신의 스터디 참가하는 경우
         if(study.getUser_id() == user.getId()){
             throw new UserValidationException();
+        }
+
+        // 이미 해당 스터디에 신청하였을 경우
+        if (applicationlistRepository.findByUser_idAndStudy_id(user_id, study_id).isPresent()) {
+            throw new DuplicationException();
         }
 
         applicationlistRepository.save(Applicationlist.builder()
