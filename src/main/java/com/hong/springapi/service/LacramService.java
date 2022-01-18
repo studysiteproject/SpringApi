@@ -160,8 +160,7 @@ public class LacramService {
             throw new UserValidationException();
         }
 
-        ApplicationlistKey key = new ApplicationlistKey(app_user_id,study_id);
-        applicationlistRepository.deleteById(key);
+        applicationlistRepository.deleteApplicationlist(app_user_id, study_id);
 
         return new ResponseEntity<>(new Response("success", "participation delete success"), HttpStatus.OK);
     }
