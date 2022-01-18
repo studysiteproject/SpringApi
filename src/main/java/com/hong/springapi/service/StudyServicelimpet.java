@@ -43,6 +43,7 @@ public class StudyServicelimpet {
                 .title(requestDto.getTitle())
                 .user_id(user_id)
                 .place(requestDto.getPlace())
+                 .category(requestDto.getCategory())
                 .maxman(requestDto.getMaxman())
                 .warn_cnt(0)
                 .nowman(1)

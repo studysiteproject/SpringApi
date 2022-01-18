@@ -53,6 +53,7 @@ public class Study extends Timestamped {
         this.description = requestDto.getDescription();
         this.maxman = requestDto.getMaxman();
         this.place = requestDto.getPlace();
+        this.category = requestDto.getCategory();
     }
 
     public void updateNowman(int val) {

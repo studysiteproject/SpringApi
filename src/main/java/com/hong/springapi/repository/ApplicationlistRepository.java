@@ -10,10 +10,12 @@ import java.util.Optional;
 
 public interface ApplicationlistRepository extends JpaRepository<Applicationlist, ApplicationlistKey> {
 
-    @Query("select S from applicationlist S where S.study_id = :study_id")
+    @Query("select S from applicationlist S where S.study_id = :study_id " +
+            "order by S.create_date DESC ")
     Optional<List<Applicationlist>> findAllByStudy_id(Long study_id);
 
-    @Query("select S from applicationlist S where S.user_id = :user_id")
+    @Query("select S from applicationlist S where S.user_id = :user_id " +
+            "order by S.create_date DESC ")
     Optional<List<Applicationlist>> findAllByUser_id(Long user_id);
 
     @Query("select S from applicationlist S where S.user_id = :user_id and S.study_id = :study_id")

@@ -12,5 +12,6 @@ public class StudyRequestDto {
     private int maxman;
     private String description;
     private String place;
+    private String category;
     private List<String> tech;
 }
