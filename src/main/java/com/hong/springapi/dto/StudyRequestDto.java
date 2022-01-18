@@ -9,7 +9,7 @@ import java.util.List;
 @Setter
 public class StudyRequestDto {
     private String title;
-    private  int maxman;
+    private int maxman;
     private String description;
     private String place;
     private List<String> tech;

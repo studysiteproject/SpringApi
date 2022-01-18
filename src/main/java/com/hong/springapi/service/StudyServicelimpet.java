@@ -47,6 +47,7 @@ public class StudyServicelimpet {
                 .warn_cnt(0)
                 .nowman(1)
                 .description(requestDto.getDescription())
+                .isactive(true)
                 .build()
         );
 
@@ -200,6 +201,7 @@ public class StudyServicelimpet {
             tmpres.setPlace(tmp.get(i).getPlace());
             tmpres.setCreate_date(tmp.get(i).getCreate_date());
             tmpres.setCategory(tmp.get(i).getCategory());
+            tmpres.setIsactive(tmp.get(i).getIsactive());
             //tech 불러오기
             tmpres.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
             //favorite 불러오기
@@ -240,6 +242,7 @@ public class StudyServicelimpet {
         study.setCreate_date(tmp.getCreate_date());
         study.setCategory(tmp.getCategory());
         study.setDescription(tmp.getDescription());
+        study.setIsactive(tmp.getIsactive());
         //tech 불러오기
         study.setTech_info(categorylistRepository.findAllByStudy_idQuery(studyId));
         //favorite 불러오기

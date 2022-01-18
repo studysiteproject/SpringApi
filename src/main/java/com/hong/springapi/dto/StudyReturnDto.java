@@ -1,11 +1,9 @@
 package com.hong.springapi.dto;
 
 import com.hong.springapi.model.Technologylist;
-import com.hong.springapi.model.User;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +21,8 @@ public class StudyReturnDto {
     Integer nowman;
     Integer warn_cnt;
     LocalDateTime create_date;
-    boolean isfavorite;
+    Boolean isfavorite;
+    Boolean isactive;
     public StudyReturnDto(){
         isfavorite = false;
         tech_info = new ArrayList<Technologylist>();

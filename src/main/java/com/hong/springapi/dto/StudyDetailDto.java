@@ -22,6 +22,7 @@ public class StudyDetailDto {
     Integer warn_cnt;
     LocalDateTime create_date;
     boolean isfavorite;
+    boolean isactive;
 
     public void setUser_info(Long id, String user_name, String img_url){
         user_info.id = id;

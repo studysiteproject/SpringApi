@@ -40,8 +40,12 @@ public class Study extends Timestamped {
     @Column
     private String place;
 
+    @Column
     @Builder.Default
-    @Column()
+    private Boolean isactive = true;
+
+    @Builder.Default
+    @Column
     private int warn_cnt = 0;
 
     public void update(StudyRequestDto requestDto){
