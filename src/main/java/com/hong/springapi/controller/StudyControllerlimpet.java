@@ -1,6 +1,7 @@
 package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.*;
+import com.hong.springapi.exception.exceptions.BadRequestException;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,18 +51,12 @@ public class StudyControllerlimpet {
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
         List<Study> tmp = new ArrayList<Study>();
 
-        if(searchRequestDto.getTech() == null && searchRequestDto.getCategory() == null){
+        if(searchRequestDto.getTech() == null){
             tmp.addAll(studyRepository.findAllByTitleAndPlaceQuery(
                     searchRequestDto.getTitle(),
-                    searchRequestDto.getPlace()
-            ));
-        }
-        else if(searchRequestDto.getTech() == null) {
-            //검색 조건에 tech가 없을 시
-            tmp.addAll(categorylistRepository.findDistinctAllByTitleAndPlaceAndCategoryQuery(
-                    searchRequestDto.getTitle(),
                     searchRequestDto.getPlace(),
-                    searchRequestDto.getCategory()));
+                    searchRequestDto.getCategory()
+            ));
         }
         else {
             //검색 조건에 tech가 있을 시
@@ -70,6 +66,10 @@ public class StudyControllerlimpet {
                             searchRequestDto.getCategory(),
                             searchRequestDto.getTech()));
         }
+        if(tmp.isEmpty()){
+            throw new BadRequestException("텅~");
+        }
+
         //get clientId
         Long clientId = 0L;
 
@@ -146,6 +146,33 @@ public class StudyControllerlimpet {
 
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         return studyServicelimpet.getformal(study, clientId);
+    }
+
+    // read one for update
+    @GetMapping("/study/check/{study_id}")
+    public Map<String, Boolean> checkStudyWriter(@PathVariable Long study_id, HttpServletRequest request){
+        Long clientId = 9L;
+        Map<String, Boolean> res = new HashMap<>();
+       Map<String,String> cookiemap = CookieHandler.getCookies(request);
+        //로그인 확인
+        if (!cookiemap.isEmpty()){
+            clientId = Long.valueOf(cookiemap.get("index"));
+        }
+        else{
+            throw new TokenValidationException();
+        }
+
+        //스터디가 존재하는 지 확인
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+
+        //작성자가 맞을 시
+        if(study.getUser_id() == clientId){
+            res.put("iswriter",true);
+        }
+        else{
+            res.put("iswriter",false);
+        }
+        return res;
     }
 
     //study 신고
