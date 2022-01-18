@@ -66,9 +66,9 @@ public class StudyControllerlimpet {
                             searchRequestDto.getCategory(),
                             searchRequestDto.getTech()));
         }
-        if(tmp.isEmpty()){
-            throw new BadRequestException("텅~");
-        }
+//        if(tmp.isEmpty()){
+//            throw new BadRequestException("텅~");
+//        }
 
         //get clientId
         Long clientId = 0L;
@@ -151,9 +151,9 @@ public class StudyControllerlimpet {
     // read one for update
     @GetMapping("/study/check/{study_id}")
     public Map<String, Boolean> checkStudyWriter(@PathVariable Long study_id, HttpServletRequest request){
-        Long clientId = 9L;
+        Long clientId = 0L;
         Map<String, Boolean> res = new HashMap<>();
-       Map<String,String> cookiemap = CookieHandler.getCookies(request);
+        Map<String,String> cookiemap = CookieHandler.getCookies(request);
         //로그인 확인
         if (!cookiemap.isEmpty()){
             clientId = Long.valueOf(cookiemap.get("index"));

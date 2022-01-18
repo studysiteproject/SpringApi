@@ -1,5 +1,6 @@
 package com.hong.springapi.util;
 
+import lombok.Value;
 import org.springframework.http.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -42,8 +43,7 @@ public class CookieHandler {
         Long userId = Long.valueOf(map.get("index"));
 
         try{
-            String baseUrl = "http://127.0.0.1:8000/auth/verify_user";
-            //String baseUrl = "https://api.catchstudys.com/auth/verify_user";
+            String baseUrl = "https://api.catchstudys.com/auth/verify_user";
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.add("cookie", "access_token="+token);

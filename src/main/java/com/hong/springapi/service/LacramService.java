@@ -66,9 +66,13 @@ public class LacramService {
         if (requestDto.getMaxman() < 2 || requestDto.getMaxman() > 100) throw new BadRequestException();
         // 설명이 공백이면 안됨
         if (requestDto.getDescription().trim().equals("")) throw new BadRequestException();
+        // 카테고리가 기준에서 벗어나면 안됨
+
 
         study.update(requestDto);
-        // 카테고리 수정
+
+        // 기술목록 수정
+        categorylistRepository.deleteAllByStudyIdQuery(study_id);
         if(requestDto.getTech() != null) {
             addCategory(study, requestDto.getTech());
         }
