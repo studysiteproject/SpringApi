@@ -2,9 +2,7 @@ package com.hong.springapi.service;
 
 import com.hong.springapi.dto.GetFavoriteDto;
 import com.hong.springapi.dto.StudyRequestDto;
-import com.hong.springapi.exception.exceptions.BadRequestException;
-import com.hong.springapi.exception.exceptions.TokenValidationException;
-import com.hong.springapi.exception.exceptions.UserValidationException;
+import com.hong.springapi.exception.exceptions.*;
 import com.hong.springapi.model.*;
 import com.hong.springapi.repository.*;
 import com.hong.springapi.response.Response;
@@ -16,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 
 import com.hong.springapi.dto.ApplicationlistDto;
-import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.ApplicationlistRepository;
@@ -131,4 +128,41 @@ public class LacramService {
         study.updateNowman(val);
     }
 
+    @Transactional
+    public ResponseEntity<Response> updateParticipation(Long study_id, Long app_user_id, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
+            throw new UserValidationException();
+        }
+
+        Applicationlist applicationlist = applicationlistRepository.findByUser_idAndStudy_id(app_user_id, study_id)
+                .orElseThrow(UserNotFoundException::new);
+        applicationlist.update(!applicationlist.getPermission());
+
+        return new ResponseEntity<>(new Response("success", "participation update success"), HttpStatus.OK);
+    }
+
+    public ResponseEntity<Response> deleteParticipation(Long study_id, Long app_user_id, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
+            throw new UserValidationException();
+        }
+
+        ApplicationlistKey key = new ApplicationlistKey(app_user_id,study_id);
+        applicationlistRepository.deleteById(key);
+
+        return new ResponseEntity<>(new Response("success", "participation delete success"), HttpStatus.OK);
+    }
 }
