@@ -17,13 +17,15 @@ public interface CategorylistRepository extends JpaRepository<Categorylist, Cate
             "where (:title is null or S.title = :title) " +
             "and (:place is null or S.place = :place) " +
             "and (:category is null or T.category = :category) " +
-            "and (C.tech_id.name in :tech_name)")
+            "and (C.tech_id.name in :tech_name) " +
+            "order by S.create_date DESC")
     public List<Study> findDistinctAllByTitleAndPlaceAndTechQuery(
             @Param("title") String title,
             @Param("place")String place,
             @Param("category")String category,
             @Param("tech_name")List<String> tech_name);
 
+    //현재는 사용 x 사유 : study 자체에 category 추가
     @Query("select distinct C.study_id from categorylist C "+
             "left join C.study_id S "+
             "left join C.tech_id T "+

@@ -1,17 +1,12 @@
 package com.hong.springapi.controller;
 
-import com.hong.springapi.dto.ApplicationlistDto;
-import com.hong.springapi.dto.StudyRequestDto;
-import com.hong.springapi.dto.StudyReturnDto;
+import com.hong.springapi.dto.*;
 import com.hong.springapi.exception.exceptions.StudyNotFoundException;
 import com.hong.springapi.exception.exceptions.TokenValidationException;
 import com.hong.springapi.exception.exceptions.UserValidationException;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
-import com.hong.springapi.repository.ApplicationlistRepository;
-import com.hong.springapi.repository.CategorylistRepository;
-import com.hong.springapi.repository.StudyRepository;
-import com.hong.springapi.repository.User_favoriteRepository;
+import com.hong.springapi.repository.*;
 import com.hong.springapi.response.Response;
 import com.hong.springapi.service.LacramService;
 import com.hong.springapi.service.StudyServicelimpet;
@@ -24,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @RestController
@@ -35,6 +31,7 @@ public class LacramController {
     private final ApplicationlistRepository applicationlistRepository;
     private final CategorylistRepository categorylistRepository;
     private final User_favoriteRepository user_favoriteRepository;
+    private final Profile_imageRepository profile_imageRepository;
 
     // update
     @PutMapping("/study/{study_id}")
@@ -64,26 +61,28 @@ public class LacramController {
 
     // 스터디 참여현황 조회
     @GetMapping("/study/member/{study_id}")
-    public List<ApplicationlistDto> getParticipationlist(@PathVariable Long study_id, HttpServletRequest request){
+    public List<GetApplicationDto> getParticipationlist(@PathVariable Long study_id, HttpServletRequest request){
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
         // 본인이 작성한 스터디글인지 검사
         Long user_id = CookieHandler.getUser_idFromCookies(request);
+
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         if (!study.getUser_id().equals(user_id)){
             throw new StudyNotFoundException();
         }
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
-        List<ApplicationlistDto> myApplicationlist = new ArrayList<>();
+        List<GetApplicationDto> myApplicationlist = new ArrayList<>();
         for (Applicationlist application : applicationlist){
             // 본인은 제외하고 보여줌
             if (application.getUser_id().equals(user_id)) continue;
 
-            ApplicationlistDto myApplication = new ApplicationlistDto();
-            myApplication.setUser_id(application.getUser_id());
+            GetApplicationDto myApplication = new GetApplicationDto();
+            Optional<User_info> tmpui = profile_imageRepository.findByUser_idQuery(application.getUser_id());
+            myApplication.setUser_info(tmpui.get());
             myApplication.setPermission(application.getPermission());
             myApplicationlist.add(myApplication);
         }

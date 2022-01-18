@@ -14,10 +14,13 @@ public interface StudyRepository extends JpaRepository<Study, Long>{
     public List<Study>findAllByTitle(String title);
 
     @Query("select S from study S where (:title is null or S.title = :title) " +
-            "and (:place is null or S.place = :place)")
+            "and (:place is null or S.place = :place) " +
+            "and (:category is null or S.category = :category) " +
+            "order by S.create_date DESC ")
     public List<Study> findAllByTitleAndPlaceQuery(
             @Param("title") String title,
-            @Param("place") String place
+            @Param("place") String place,
+            @Param("category") String category
     );
 
     @Query("select S from study S where S.user_id = :user_id")

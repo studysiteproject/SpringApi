@@ -42,7 +42,8 @@ public class CookieHandler {
         Long userId = Long.valueOf(map.get("index"));
 
         try{
-            String baseUrl = "https://api.catchstudys.com/auth/verify_user";
+            String baseUrl = "http://127.0.0.1:8000/auth/verify_user";
+            //String baseUrl = "https://api.catchstudys.com/auth/verify_user";
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
             headers.add("cookie", "access_token="+token);
