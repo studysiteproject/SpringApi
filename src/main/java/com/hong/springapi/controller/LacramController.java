@@ -152,6 +152,12 @@ public class LacramController {
         }
         throw new StudyNotFoundException();
     }
+
+    // 모집여부 수정
+    @PutMapping("/study/recruit/{study_id}")
+    public ResponseEntity<Response> updateRecruit(@PathVariable Long study_id, HttpServletRequest request){
+        return studyService.updateRecruit(study_id, request);
+    }
 }
 
 

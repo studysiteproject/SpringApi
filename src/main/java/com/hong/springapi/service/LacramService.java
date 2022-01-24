@@ -75,6 +75,7 @@ public class LacramService {
         return new ResponseEntity<>(new Response("success", "update success"), HttpStatus.OK);
     }
 
+    @Transactional
     public ResponseEntity<Response> deleteStudy(Long study_id, HttpServletRequest request) {
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
@@ -163,5 +164,24 @@ public class LacramService {
         applicationlistRepository.deleteApplicationlist(app_user_id, study_id);
 
         return new ResponseEntity<>(new Response("success", "participation delete success"), HttpStatus.OK);
+    }
+
+    // 모집여부 수정
+    @Transactional
+    public ResponseEntity<Response> updateRecruit(Long study_id, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 작성한 스터디글인지 검사
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
+        if (!study.getUser_id().equals(user_id)){
+            throw new StudyNotFoundException();
+        }
+
+        study.updateIsactive();
+
+        return new ResponseEntity<>(new Response("success", "update isactive success"), HttpStatus.OK);
     }
 }

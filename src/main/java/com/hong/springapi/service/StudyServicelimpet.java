@@ -163,9 +163,14 @@ public class StudyServicelimpet {
         //중복 확인 + 유효성 검증
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
         User user = userRepository.findById(user_id).orElseThrow(UserNotFoundException::new);
-
+        
+        // 모집중이 아닌 스터디에 신청할경우
+        if (!study.getIsactive()) {
+            throw new BadRequestException();
+        }
+        
         //작성자가 자신의 스터디 참가하는 경우
-        if(study.getUser_id() == user.getId()){
+        if(study.getUser_id().equals(user.getId())){
             throw new UserValidationException();
         }
 

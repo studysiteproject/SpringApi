@@ -58,4 +58,8 @@ public class Study extends Timestamped {
     public void updateNowman(int val) {
         this.nowman += val;
     }
+    public void updateIsactive() {
+        this.isactive = !this.isactive;
+    }
+
 }
