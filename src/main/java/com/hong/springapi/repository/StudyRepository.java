@@ -23,6 +23,7 @@ public interface StudyRepository extends JpaRepository<Study, Long>{
             @Param("category") String category
     );
 
-    @Query("select S from study S where S.user_id = :user_id")
+    @Query("select S from study S where S.user_id = :user_id " +
+            "order by S.create_date DESC ")
     Optional<List<Study>> findAllByUser_id(Long user_id);
 }

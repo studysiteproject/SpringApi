@@ -5,6 +5,7 @@ import com.hong.springapi.model.CategorylistKey;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.model.Technologylist;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -25,6 +26,13 @@ public interface CategorylistRepository extends JpaRepository<Categorylist, Cate
             @Param("category")String category,
             @Param("tech_name")List<String> tech_name);
 
+    //studyid로 삭제
+    @Modifying
+    @Query("delete from categorylist C " +
+            "where C.study_id.id = :study_id")
+    public void deleteAllByStudyIdQuery(
+            @Param("study_id")Long study_id
+    );
     //현재는 사용 x 사유 : study 자체에 category 추가
     @Query("select distinct C.study_id from categorylist C "+
             "left join C.study_id S "+
