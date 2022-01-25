@@ -16,6 +16,12 @@ public class MyExceptionHandler {
         return new Response("fail", exception.getMessage());
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public Response reportError(UserNotFoundException exception) {
+        return new Response("fail", exception.getMessage());
+    }
+
     @ExceptionHandler(TokenValidationException.class)
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
     public Response reportError(TokenValidationException exception) {

@@ -38,7 +38,10 @@ public class CookieHandler {
 
     static public Boolean checkValidation(HttpServletRequest request) {
         Map<String,String> map = CookieHandler.getCookies(request);
-        if (map.isEmpty()) return false;
+        if (map.isEmpty()) {
+            System.out.println("쿠키가 없습니다.");
+            return false;
+        }
         String token = map.get("access_token");
         Long userId = Long.valueOf(map.get("index"));
 
@@ -55,6 +58,7 @@ public class CookieHandler {
             ResponseEntity<String> res = restTemplate.exchange(baseUrl, HttpMethod.GET, entity, String.class);
             return true;
         } catch (Exception e){
+            System.out.println(e.getMessage());
             return false;
         }
     }

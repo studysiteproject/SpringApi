@@ -89,12 +89,6 @@ public class LacramController {
         return myApplicationlist;
     }
 
-//    // 스터디 참여현황 수정
-//    @PutMapping("/study/member/{study_id}")
-//    public ResponseEntity<Response> updateParticipationlist(@PathVariable Long study_id, @RequestBody List<ApplicationlistDto> requestDto, HttpServletRequest request){
-//        return studyService.updateParticipationlist(study_id, requestDto, request);
-//    }
-
     // 스터디 신청자 참여여부 수정
     @PutMapping("/study/member")
     public ResponseEntity<Response> updateParticipation(@RequestParam("studyId") Long study_id, @RequestParam("userId") Long app_user_id, HttpServletRequest request){

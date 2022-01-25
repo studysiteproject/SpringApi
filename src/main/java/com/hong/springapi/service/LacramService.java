@@ -153,6 +153,7 @@ public class LacramService {
         return new ResponseEntity<>(new Response("success", "participation update success"), HttpStatus.OK);
     }
 
+    @Transactional
     public ResponseEntity<Response> deleteParticipation(Long study_id, Long app_user_id, HttpServletRequest request) {
         // 유효한 토큰인지 검사
         if (!CookieHandler.checkValidation(request)){
