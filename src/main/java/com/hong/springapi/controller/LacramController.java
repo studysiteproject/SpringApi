@@ -1,9 +1,7 @@
 package com.hong.springapi.controller;
 
 import com.hong.springapi.dto.*;
-import com.hong.springapi.exception.exceptions.StudyNotFoundException;
-import com.hong.springapi.exception.exceptions.TokenValidationException;
-import com.hong.springapi.exception.exceptions.UserValidationException;
+import com.hong.springapi.exception.exceptions.*;
 import com.hong.springapi.model.Applicationlist;
 import com.hong.springapi.model.Study;
 import com.hong.springapi.repository.*;
@@ -66,13 +64,12 @@ public class LacramController {
         if (!CookieHandler.checkValidation(request)){
             throw new TokenValidationException();
         }
-        // 본인이 작성한 스터디글인지 검사
+        // 본인이 속한 스터디인지 검사
         Long user_id = CookieHandler.getUser_idFromCookies(request);
-
-        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
-        if (!study.getUser_id().equals(user_id)){
-            throw new StudyNotFoundException();
+        if (!applicationlistRepository.findByUser_idAndStudy_id(user_id, study_id).isPresent()) {
+            throw new UserValidationException();
         }
+
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
         List<GetApplicationDto> myApplicationlist = new ArrayList<>();

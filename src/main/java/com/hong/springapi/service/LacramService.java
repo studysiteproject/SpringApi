@@ -148,7 +148,21 @@ public class LacramService {
 
         Applicationlist applicationlist = applicationlistRepository.findByUser_idAndStudy_id(app_user_id, study_id)
                 .orElseThrow(UserNotFoundException::new);
-        applicationlist.update(!applicationlist.getPermission());
+
+        Boolean permission = applicationlist.getPermission();
+
+        // 이미 스터디원이 다 찼는데 허용하려는 경우
+        if (study.getNowman() == study.getMaxman() && !permission){
+            throw new BadRequestException();
+        }
+
+        // 허용 -> 비허용 nowman-- , 비허용 -> 허용 nowman++
+        if (permission) {
+            updateNowman(study_id, -1);
+        } else {
+            updateNowman(study_id, 1);
+        }
+        applicationlist.update(!permission);
 
         return new ResponseEntity<>(new Response("success", "participation update success"), HttpStatus.OK);
     }
@@ -166,6 +180,14 @@ public class LacramService {
             throw new UserValidationException();
         }
 
+        Applicationlist applicationlist = applicationlistRepository.findByUser_idAndStudy_id(app_user_id, study_id)
+                .orElseThrow(UserNotFoundException::new);
+
+        Boolean permission = applicationlist.getPermission();
+        // 허용된 인원 삭제시 nowman--
+        if (permission) {
+            updateNowman(study_id, -1);
+        }
         applicationlistRepository.deleteApplicationlist(app_user_id, study_id);
 
         return new ResponseEntity<>(new Response("success", "participation delete success"), HttpStatus.OK);

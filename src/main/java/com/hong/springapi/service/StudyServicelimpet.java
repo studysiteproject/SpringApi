@@ -51,7 +51,13 @@ public class StudyServicelimpet {
                 .isactive(true)
                 .build()
         );
-
+         // 스터디 생성시 작성자를 참가신청목록에 추가
+        applicationlistRepository.save(Applicationlist.builder()
+                .study_id(res.getId())
+                .user_id(user_id)
+                .permission(true)
+                .build()
+        );
 
         if(requestDto.getTech()!=null) {
             addCategory(studyRepository.findById(res.getId()).orElseThrow(StudyNotFoundException :: new), requestDto.getTech());
@@ -169,15 +175,17 @@ public class StudyServicelimpet {
         if (!study.getIsactive()) {
             throw new BadRequestException();
         }
-        
         //작성자가 자신의 스터디 참가하는 경우
         if(study.getUser_id().equals(user.getId())){
             throw new UserValidationException();
         }
-
         // 이미 해당 스터디에 신청하였을 경우
         if (applicationlistRepository.findByUser_idAndStudy_id(user_id, study_id).isPresent()) {
             throw new DuplicationException();
+        }
+        // 신청글이 10자 이하일경우
+        if (studyReportDto.getDescription().length() < 10) {
+            throw new BadRequestException();
         }
 
         applicationlistRepository.save(Applicationlist.builder()
