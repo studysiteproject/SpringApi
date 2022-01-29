@@ -126,24 +126,7 @@ public class LacramController {
     // 신청한 스터디 탈퇴
     @DeleteMapping("/study/applicationlist/{study_id}")
     public ResponseEntity<Response> deleteApplicationlist(@PathVariable Long study_id, HttpServletRequest request){
-        // 유효한 토큰인지 검사
-        if (!CookieHandler.checkValidation(request)){
-            throw new TokenValidationException();
-        }
-        // 본인이 신청한 스터디글인지 검사
-        Long user_id = CookieHandler.getUser_idFromCookies(request);
-        List<Applicationlist> myApplicationlist = applicationlistRepository.findAllByUser_id(user_id).orElseThrow(StudyNotFoundException::new);
-
-        for (Applicationlist myApplication : myApplicationlist){
-            if (myApplication.getStudy_id().equals(study_id)){
-                applicationlistRepository.delete(myApplication);
-                // 탈퇴시 nowman--
-                studyService.updateNowman(study_id, -1);
-
-                return new ResponseEntity<> (new Response("success", "delete success"), HttpStatus.OK);
-            }
-        }
-        throw new StudyNotFoundException();
+        return studyService.deleteApplicationlist(study_id, request);
     }
 
     // 모집여부 수정

@@ -59,11 +59,11 @@ public class LacramService {
         }
 
         // 제목이 공백이면 안됨
-        if (requestDto.getTitle().trim().equals("") || requestDto.getMaxman() > 50) throw new BadRequestException();
+        if (requestDto.getTitle().trim().equals("")) throw new BadRequestException();
         // 장소가 공백이면 안됨
         if (requestDto.getPlace().trim().equals("")) throw new BadRequestException();
         // maxman 2이상 이어야함
-        if (requestDto.getMaxman() < 2 || requestDto.getMaxman() > 100) throw new BadRequestException();
+        if (requestDto.getMaxman() < 2 || requestDto.getMaxman() > 50) throw new BadRequestException();
         // 설명이 공백이면 안됨
         if (requestDto.getDescription().trim().equals("")) throw new BadRequestException();
         // 카테고리가 기준에서 벗어나면 안됨
@@ -209,6 +209,32 @@ public class LacramService {
 
         study.updateIsactive();
 
-        return new ResponseEntity<>(new Response("success", "update isactive success"), HttpStatus.OK);
+        return new ResponseEntity<>(new Response("success", "isactive update success"), HttpStatus.OK);
+    }
+
+    @Transactional
+    public ResponseEntity<Response> deleteApplicationlist(Long study_id, HttpServletRequest request) {
+        // 유효한 토큰인지 검사
+        if (!CookieHandler.checkValidation(request)){
+            throw new TokenValidationException();
+        }
+        // 본인이 신청한 스터디글인지 검사
+        Long user_id = CookieHandler.getUser_idFromCookies(request);
+        List<Applicationlist> myApplicationlist = applicationlistRepository.findAllByUser_id(user_id).orElseThrow(StudyNotFoundException::new);
+
+        for (Applicationlist myApplication : myApplicationlist){
+            if (myApplication.getStudy_id().equals(study_id)){
+                applicationlistRepository.delete(myApplication);
+                // 탈퇴시 nowman--
+                Boolean permission = myApplication.getPermission();
+                // 허용된 인원 탈퇴시 nowman--
+                if (permission) {
+                    updateNowman(study_id, -1);
+                }
+
+                return new ResponseEntity<> (new Response("success", "delete success"), HttpStatus.OK);
+            }
+        }
+        throw new StudyNotFoundException();
     }
 }
