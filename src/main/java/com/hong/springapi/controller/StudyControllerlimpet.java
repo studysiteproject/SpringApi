@@ -10,6 +10,7 @@ import com.hong.springapi.repository.*;
 import com.hong.springapi.response.Response;
 import com.hong.springapi.service.StudyServicelimpet;
 import com.hong.springapi.util.CookieHandler;
+import com.hong.springapi.util.SQLdefend;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,7 @@ public class StudyControllerlimpet {
     private final UserRepository userRepository;
     private final Profile_imageRepository profile_imageRepository;
 
+
     // create study
     @PostMapping("/study/create")
     public ResponseEntity<Response> createStudy(@RequestBody StudyRequestDto requestDto, HttpServletRequest request){
@@ -51,6 +53,7 @@ public class StudyControllerlimpet {
         List<StudyReturnDto> res = new ArrayList<StudyReturnDto>();
         List<Study> tmp = new ArrayList<Study>();
 
+        System.out.println(searchRequestDto.getTitle());
         if(searchRequestDto.getTech() == null){
             tmp.addAll(studyRepository.findAllByTitleAndPlaceQuery(
                     searchRequestDto.getTitle(),
@@ -109,7 +112,6 @@ public class StudyControllerlimpet {
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long user_id = CookieHandler.getUser_idFromCookies(request);
-        Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
         return studyServicelimpet.deleteFavorite(study_id, user_id);
 
@@ -185,7 +187,6 @@ public class StudyControllerlimpet {
         // 본인이 작성한 스터디글인지 검사
         // 에러메세지 수정해야됨
         Long user_id = CookieHandler.getUser_idFromCookies(request);
-
         Study study = studyRepository.findById(study_id).orElseThrow(StudyNotFoundException::new);
 
         return studyServicelimpet.reportStudy(study_id, user_id, studyReportDto);

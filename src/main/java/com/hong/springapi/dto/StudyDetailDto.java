@@ -1,6 +1,7 @@
 package com.hong.springapi.dto;
 
 import com.hong.springapi.model.Technologylist;
+import com.hong.springapi.util.SQLdefend;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -23,6 +24,19 @@ public class StudyDetailDto {
     LocalDateTime create_date;
     boolean isfavorite;
     boolean isactive;
+
+//    public void setTitle(String input){
+//        title = SQLdefend.checkSQL(input);
+//    }
+//    public void setCategory(String input){
+//        category = SQLdefend.checkSQL(input);
+//    }
+//    public void setPlace(String input){
+//        place = SQLdefend.checkSQL(input);
+//    }
+//    public void setDescription(String input){
+//        description = SQLdefend.checkSQL(input);
+//    }
 
     public void setUser_info(Long id, String user_name, String img_url){
         user_info.id = id;
