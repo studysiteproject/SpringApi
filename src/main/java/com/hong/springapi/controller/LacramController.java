@@ -72,7 +72,9 @@ public class LacramController {
 
         List<Applicationlist> applicationlist = applicationlistRepository.findAllByStudy_id(study_id).orElseThrow(StudyNotFoundException::new);
 
+
         List<GetApplicationDto> myApplicationlist = new ArrayList<>();
+
         for (Applicationlist application : applicationlist){
             // 본인은 제외하고 보여줌
             if (application.getUser_id().equals(user_id)) continue;
