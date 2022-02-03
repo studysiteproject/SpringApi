@@ -12,8 +12,6 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins("http://localhost:3000","https://catchstudys.com","https://www.catchstudys.com")
                 .allowedMethods("*")
                 .allowCredentials(true)
-              //  .allowedHeaders("Origin, X-Auth-Token, Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
                 .maxAge(3600);
-
     }
 }
